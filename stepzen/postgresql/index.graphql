@@ -14,15 +14,15 @@ type Comment {
 Table 'post' aliased as GQLName: 'Post'
 """
 type Post {
+  title: String
   body: String
+  image: String
   comment: [Comment] @materializer(query: "getCommentUsingComment_post_id_fkey")
   created_at: DateTime
   id: ID!
-  image: String
   subreddit: Subreddit
     @materializer(query: "getSubredditUsingPost_subreddit_id_fkey")
   subreddit_id: ID
-  title: String
   username: String
   vote: [Vote] @materializer(query: "getVoteUsingVote_post_id_fkey")
 }
@@ -32,7 +32,7 @@ Table 'subreddit' aliased as GQLName: 'Subreddit'
 """
 type Subreddit {
   id: ID!
-  topic: String!
+  topic: String
   created_at: DateTime
   post: [Post] @materializer(query: "getPostUsingPost_subreddit_id_fkey")
 }

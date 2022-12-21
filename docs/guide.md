@@ -228,7 +228,7 @@ export default function Example() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right  rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 ">
+        <Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-top-right  rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 ">
           <div className="py-1">
             {loggedIn ? (
               <>
@@ -2178,7 +2178,7 @@ import Form from "./Form";
 
 function PostBox() {
   return (
-    <div className="sticky top-16 z-50">
+    <div className="sticky top-16 z-40">
       <div className="flex space-x-3 my-7 max-w-5xl mx-auto bg-white border border-gray-300 rounded-md p-2">
         {/* @ts-expect-error Server Component */}
         <Avatar />
@@ -2645,27 +2645,25 @@ import { gql } from "@apollo/client";
 
 export const ADD_POST = gql`
   mutation MyMutation(
-    $body: String
-    $subreddit_id: ID
-    $created_at: DateTime
-    $title: String
-    $username: String
-    $image: String
+     $title: String!
+    $body: String!
+    $image: String!
+    $subreddit_id: ID!
+    $username: String!
   ) {
-    insertPost(
-      body: $body
-      subreddit_id: $subreddit_id
-      created_at: $created_at
+   insertPost(
       title: $title
-      username: $username
+      body: $body
       image: $image
+      subreddit_id: $subreddit_id
+      username: $username
     ) {
-      body
-      subreddit_id
-      created_at
       title
-      username
+      body
       image
+      subreddit_id
+      username
+      created_at
     }
   }
 `;
@@ -3125,5 +3123,366 @@ function Form() {
 }
 
 export default Form;
+
+```
+
+## Building Feed Component and Functionality:
+
+### Create Feed Component:
+
+In app/Feed.tsx:
+
+```
+import React from "react";
+
+type Props = {};
+
+function Feed({}: Props) {
+  return <div>Feed</div>;
+}
+
+export default Feed;
+
+```
+
+### Update app/page.tsx:
+
+```
+import React from "react";
+import Feed from "./Feed";
+import PostBox from "./PostBox";
+type Props = {};
+
+async function Home({}: Props) {
+  return (
+    <div>
+      <PostBox />
+      <div className="flex">
+          {/* @ts-expect-error Server Component */}
+        <Feed />
+      </div>
+    </div>
+  );
+}
+
+export default Home;
+```
+
+### Update graphql/queries.tsx:
+
+```
+import { gql } from "@apollo/client";
+
+export const GET_SUBREDDIT_BY_TOPIC = gql`
+  query MyQuery($topic: String!) {
+    getSubredditListByTopic(topic: $topic) {
+      id
+      topic
+      created_at
+    }
+  }
+`;
+
+export const GET_ALL_POSTS = gql`
+  query MyQuery {
+    getPostList {
+      body
+      created_at
+      id
+      image
+      subreddit_id
+      title
+      username
+    }
+  }
+`;
+
+```
+
+### In stepzen/postgresql/index.graphql:
+
+We use the existing queries like: getSubredditUsingPost_subreddit_id_fkey, getVoteUsingVote_post_id_fkey and getCommentUsingComment_post_id_fkey.
+
+The type Post looks like:
+
+```
+type Post {
+  title: String
+  body: String
+  image: String
+  comment: [Comment] @materializer(query: "getCommentUsingComment_post_id_fkey")
+  created_at: DateTime
+  id: ID!
+  subreddit: Subreddit
+    @materializer(query: "getSubredditUsingPost_subreddit_id_fkey")
+  subreddit_id: ID
+  username: String
+  vote: [Vote] @materializer(query: "getVoteUsingVote_post_id_fkey")
+}
+```
+
+getSubredditUsingPost_subreddit_id_fkey query:
+
+```
+getSubredditUsingPost_subreddit_id_fkey(subreddit_id: ID!): Subreddit
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "id", "topic" FROM "subreddit" WHERE "id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+getVoteUsingVote_post_id_fkey query:
+
+```
+ getVoteUsingVote_post_id_fkey(id: ID!): [Vote]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "id", "post_id", "upvote", "username" FROM "vote" WHERE "post_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+getCommentUsingComment_post_id_fkey query:
+
+```
+getCommentUsingComment_post_id_fkey(id: ID!): [Comment]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT "created_at", "id", "post_id", "text", "username" FROM "comment" WHERE "post_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+### Create a dummy comment and vote in Supabase for testing purposes:
+
+Go to table editor > comment > Insert row > post_id:1, text:This is a comment, username:test > Save
+Go to table editor > vote > Insert row > post_id:1, upvote:true, username:test > Save
+
+#### Go to http://localhost:5001/api/reddit-clone and test queries:
+
+```
+query MyQuery {
+  getPostList {
+    body
+    created_at
+    id
+    image
+    subreddit_id
+    title
+    username
+    subreddit {
+      topic
+      id
+      created_at
+    }
+    comment {
+      created_at
+      id
+      post_id
+      text
+      username
+    }
+    vote {
+      created_at
+      id
+      post_id
+      upvote
+      username
+    }
+  }
+}
+```
+
+It should show the subreddit, comment and vote data.
+
+### Update GET_ALL_POSTS in graphql/queries.tsx
+
+```
+import { gql } from "@apollo/client";
+
+export const GET_SUBREDDIT_BY_TOPIC = gql`
+  query MyQuery($topic: String!) {
+    getSubredditListByTopic(topic: $topic) {
+      id
+      topic
+      created_at
+    }
+  }
+`;
+
+export const GET_ALL_POSTS = gql`
+  query MyQuery {
+    getPostList {
+      body
+      created_at
+      id
+      image
+      title
+      subreddit_id
+      username
+      subreddit {
+        topic
+        id
+        created_at
+      }
+      comment {
+        created_at
+        id
+        post_id
+        text
+        username
+      }
+      vote {
+        created_at
+        id
+        post_id
+        upvote
+        username
+      }
+    }
+  }
+`;
+
+```
+
+### Create a typings.d.ts file in the root directory:
+
+```
+type Comments = {
+  created_at: string;
+  id: number;
+  post_id: number;
+  text: string;
+  username: string;
+};
+
+type Vote = {
+  created_at: string;
+  id: number;
+  post_id: number;
+  upvote: boolean;
+  username: string;
+};
+
+type Subreddit = {
+  created_at: string;
+  id: number;
+  topic: string;
+};
+
+type Post = {
+  body: string;
+  created_at: string;
+  id: number;
+  image: string;
+  subreddit_id: number;
+  title: string;
+  username: string;
+  vote: Vote[];
+  comment: Comment[];
+  subreddit: Subreddit;
+};
+
+```
+
+### Create app/Post.tsx:
+
+```
+import React from "react";
+
+type Props = {};
+
+function Post({}: Props) {
+  return <div>Post</div>;
+}
+
+export default Post;
+
+```
+
+### Update app/Feed.tsx:
+
+```
+// import { useQuery } from "@apollo/client";
+import React from "react";
+import client from "../apollo-client";
+import { GET_ALL_POSTS } from "../graphql/queries";
+import Post from "./Post";
+
+type Props = {};
+
+async function Feed({}: Props) {
+  //   const { data, error } = useQuery(GET_ALL_POSTS);
+  const { data, error } = await client.query({
+    query: GET_ALL_POSTS,
+  });
+  console.log(error);
+  const posts: Post[] = data?.getPostList;
+  return (
+    <div className="">
+      {posts?.map((post) => (
+        <Post key={post.id} post={post}/>
+      ))}
+    </div>
+  );
+}
+
+export default Feed;
+
+
+```
+
+### Update styles/globals.css:
+```
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .icon {
+    @apply h-8 w-8  cursor-pointer rounded-sm space-x-2 p-1 lg:hover:bg-gray-100;
+  }
+  .voteButtons {
+    @apply h-6 w-6 hover:bg-gray-200 p-1 rounded-md;
+  }
+}
+```
+
+### Install [React TimeAgo](https://www.npmjs.com/package/react-timeago):
+
+```
+npm i react-timeago
+npm i --save-dev @types/react-timeago
+```
+
+### Create app/Time.tsx:
+```
+"use client";
+import React from "react";
+import TimeAgo from "react-timeago";
+type Props = {
+  date: string;
+};
+
+function Time({ date }: Props) {
+  return <TimeAgo date={date} />;
+}
+
+export default Time;
+
+```
+
+### Update app/Post.tsx:
+```
 
 ```
