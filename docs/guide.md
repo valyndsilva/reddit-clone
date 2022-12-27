@@ -2179,7 +2179,7 @@ import Form from "./Form";
 function PostBox() {
   return (
     <div className="sticky top-16 z-40">
-      <div className="flex space-x-3 my-7 max-w-5xl mx-auto bg-white border border-gray-300 rounded-md p-2">
+      <div className="flex space-x-3 bg-white border border-gray-300 rounded-md p-2">
         {/* @ts-expect-error Server Component */}
         <Avatar />
         <Form />
@@ -2257,7 +2257,7 @@ type Post {
   subreddit_id: ID
   title: String
   username: String
-  vote: [Vote] @materializer(query: "getVoteUsingVote_post_id_fkey")
+  vote: [Vote] @materializer(query: "####UsingVote_post_id_fkey")
 }
 
 """
@@ -2405,21 +2405,21 @@ type Query {
       configuration: "postgresql_config"
     )
   " Queries for type 'Vote' "
-  getVote(id: ID!): Vote
+  ####(id: ID!): Vote
     @dbquery(
       type: "postgresql"
       schema: "public"
       table: "vote"
       configuration: "postgresql_config"
     )
-  getVoteList: [Vote]
+  ####List: [Vote]
     @dbquery(
       type: "postgresql"
       schema: "public"
       table: "vote"
       configuration: "postgresql_config"
     )
-  getVotePaginatedList(first: Int, after: Int): [Vote]
+  ####PaginatedList(first: Int, after: Int): [Vote]
     @dbquery(
       type: "postgresql"
       schema: "public"
@@ -2428,7 +2428,7 @@ type Query {
       """
       configuration: "postgresql_config"
     )
-  getVoteUsingVote_post_id_fkey(id: ID!): [Vote]
+  ####UsingVote_post_id_fkey(id: ID!): [Vote]
     @dbquery(
       type: "postgresql"
       schema: "public"
@@ -3155,7 +3155,7 @@ type Props = {};
 
 async function Home({}: Props) {
   return (
-    <div>
+     <div className="my-7 mx-auto max-w-5xl">
       <PostBox />
       <div className="flex">
           {/* @ts-expect-error Server Component */}
@@ -3201,7 +3201,7 @@ export const GET_ALL_POSTS = gql`
 
 ### In stepzen/postgresql/index.graphql:
 
-We use the existing queries like: getSubredditUsingPost_subreddit_id_fkey, getVoteUsingVote_post_id_fkey and getCommentUsingComment_post_id_fkey.
+We use the existing queries like: getSubredditUsingPost_subreddit_id_fkey, ####UsingVote_post_id_fkey and getCommentUsingComment_post_id_fkey.
 
 The type Post looks like:
 
@@ -3217,7 +3217,7 @@ type Post {
     @materializer(query: "getSubredditUsingPost_subreddit_id_fkey")
   subreddit_id: ID
   username: String
-  vote: [Vote] @materializer(query: "getVoteUsingVote_post_id_fkey")
+  vote: [Vote] @materializer(query: "####UsingVote_post_id_fkey")
 }
 ```
 
@@ -3235,10 +3235,10 @@ getSubredditUsingPost_subreddit_id_fkey(subreddit_id: ID!): Subreddit
     )
 ```
 
-getVoteUsingVote_post_id_fkey query:
+####UsingVote_post_id_fkey query:
 
 ```
- getVoteUsingVote_post_id_fkey(id: ID!): [Vote]
+ ####UsingVote_post_id_fkey(id: ID!): [Vote]
     @dbquery(
       type: "postgresql"
       schema: "public"
@@ -3271,7 +3271,7 @@ Go to table editor > vote > Insert row > post_id:1, upvote:true, username:test >
 #### Go to http://localhost:5001/api/reddit-clone and test queries:
 
 ```
-query MyQuery {
+query GetAllPosts {
   getPostList {
     body
     created_at
@@ -3311,7 +3311,7 @@ It should show the subreddit, comment and vote data.
 import { gql } from "@apollo/client";
 
 export const GET_SUBREDDIT_BY_TOPIC = gql`
-  query MyQuery($topic: String!) {
+  query GetSubredditByTopic($topic: String!) {
     getSubredditListByTopic(topic: $topic) {
       id
       topic
@@ -3321,7 +3321,7 @@ export const GET_SUBREDDIT_BY_TOPIC = gql`
 `;
 
 export const GET_ALL_POSTS = gql`
-  query MyQuery {
+  query GetAllPosts {
     getPostList {
       body
       created_at
@@ -3413,25 +3413,31 @@ export default Post;
 ### Update app/Feed.tsx:
 
 ```
-// import { useQuery } from "@apollo/client";
-import React from "react";
+"use client";
 import client from "../apollo-client";
+import { useQuery } from "@apollo/client";
+import React from "react";
 import { GET_ALL_POSTS } from "../graphql/queries";
 import Post from "./Post";
 
-type Props = {};
-
-async function Feed({}: Props) {
-  //   const { data, error } = useQuery(GET_ALL_POSTS);
-  const { data, error } = await client.query({
-    query: GET_ALL_POSTS,
-  });
-  console.log(error);
+function Feed() {
+  // const { data, error } = await client.query({
+  //   query: GET_ALL_POSTS,
+  // });
+  const { data, error } = useQuery(GET_ALL_POSTS);
+  if (data) {
+    console.log("Data:", data);
+  } else {
+    console.log(error);
+  }
   const posts: Post[] = data?.getPostList;
+  // console.log("Posts:", posts);
+
+
   return (
-    <div className="">
+     <div className="mt-5 space-y-4 max-w-5xl mx-auto flex-1">
       {posts?.map((post) => (
-        <Post key={post.id} post={post}/>
+        <Post key={post.id} post={post} />
       ))}
     </div>
   );
@@ -3443,6 +3449,7 @@ export default Feed;
 ```
 
 ### Update styles/globals.css:
+
 ```
 @tailwind base;
 @tailwind components;
@@ -3455,7 +3462,11 @@ export default Feed;
   .voteButtons {
     @apply h-6 w-6 hover:bg-gray-200 p-1 rounded-md;
   }
+  .postButtons {
+    @apply flex items-center space-x-1 text-sm font-semibold p-2 hover:bg-gray-100 cursor-pointer rounded-sm;
+  }
 }
+
 ```
 
 ### Install [React TimeAgo](https://www.npmjs.com/package/react-timeago):
@@ -3466,6 +3477,7 @@ npm i --save-dev @types/react-timeago
 ```
 
 ### Create app/Time.tsx:
+
 ```
 "use client";
 import React from "react";
@@ -3482,7 +3494,1975 @@ export default Time;
 
 ```
 
+### Upload dummy images:
+
+Add a few dummy images to your repo and force add the image urls in the post table in supabase for testing while creating the post component.
+
 ### Update app/Post.tsx:
-```
 
 ```
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  BookmarkIcon,
+  ChatBubbleBottomCenterIcon,
+  EllipsisHorizontalCircleIcon,
+  EllipsisHorizontalIcon,
+  GifIcon,
+  GiftIcon,
+  ShareIcon,
+} from "@heroicons/react/24/outline";
+import React from "react";
+import Avatar from "./Avatar";
+import Time from "./Time";
+
+type Props = {
+  post: Post;
+};
+
+function Post({ post }: Props) {
+  //   console.log(post.subreddit.topic);
+  // console.log(post);
+  return (
+    <div className="flex cursor-pointer rounded-md border border-gray-300 bg-white shadow-sm hover:border hover:border-gray-600">
+      {/* Votes */}
+      <div className="flex flex-col items-center justify-start space-y-1 rounded-l-md bg-gray-50 p-4 text-gray-400">
+        <ArrowUpIcon className="voteButtons hover:text-red-400" />
+        <p className="text-xs font-bold text-black">0</p>
+        <ArrowDownIcon className="voteButtons hover:text-blue-400" />
+      </div>
+
+      <div className="p-3 pb-1">
+        {/* Header */}
+        <div className="flex items-center space-x-2">
+           {/* @ts-expect-error Server Component
+          <Avatar seed={post.subreddit.topic} /> */}
+          <Image
+            src={`https://avatars.dicebear.com/api/open-peeps/${
+              post.subreddit.topic || post.username || "placeholder"
+            }.svg`}
+            alt="Avatar Image"
+            width={50}
+            height={50}
+            className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+          />
+          <p className="text-xs text-gray-400">
+            <span className="font-bold text-black hover:text-blue-400 hover:underline">
+              r/{post.subreddit.topic}
+            </span>{" "}
+            · Posted by u/{post.username} <Time date={post.created_at} />
+          </p>
+        </div>
+
+        {/* Body */}
+        <div className="py-4">
+          <h2 className="text-xl font-semibold">{post.title}</h2>
+          <h2 className="mt-2 text-sm font-light">{post.body}</h2>
+        </div>
+
+        {/* Image */}
+        <img src={post.image} alt="" className="w-full" />
+
+        {/* Footer */}
+        <div className="flex space-x-4 text-gray-400">
+          <div className="postButtons">
+            <ChatBubbleBottomCenterIcon className="h-6 w-6" />
+            <p className="">{post.comment.length} Comments</p>
+          </div>
+          <div className="postButtons">
+            <GiftIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Award</p>
+          </div>
+          <div className="postButtons">
+            <ShareIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Share</p>
+          </div>
+          <div className="postButtons">
+            <BookmarkIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Save</p>
+          </div>
+          <div className="postButtons">
+            <EllipsisHorizontalIcon className="h-6 w-6" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Post;
+
+```
+
+### Implementing Re-fetching Post Data Functionality:
+
+When you create a new post, the page does not re-fetch the updated information automatically. We can fix this by re-fetching.
+
+#### Update app/Form.tsx:
+
+We update this line:
+
+```
+const [addPost] = useMutation(ADD_POST);
+```
+
+to this:
+
+```
+  const [addPost] = useMutation(ADD_POST, {
+    refetchQueries: [GET_ALL_POSTS, "getPostList"],
+  });
+```
+
+#### To set the order of the posts:
+
+In stepzen/postgresql/index.graphql:
+
+Replace this:
+
+```
+  getPostList: [Post]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "post"
+      configuration: "postgresql_config"
+    )
+```
+
+with this:
+
+```
+  getPostList: [Post]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      # table: "post"
+      query: """
+      SELECT * FROM "post" JOIN "subreddit" ON "subreddit"."id" = "post"."subreddit_id" ORDER BY "post"."created_at" DESC
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+OR:
+
+```
+  getPostList: [Post]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      # table: "post"
+      query: """
+      SELECT * FROM "post"
+      ORDER BY "post"."created_at" DESC
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+Note: Now if you add a new post it should be automatically re-fetched and updated. For useMutation to work you need to use it in combination with useQuery as useMutation re-triggers useQuery on re-fetching.
+
+## Building Subreddit Page:
+
+### Create app/subreddit/[topic]/page.tsx:
+
+Ex: http://localhost:3000/subreddit/reactjs
+
+```
+import React from "react";
+import Avatar from "../../Avatar";
+import Feed from "../../Feed";
+import PostBox from "../../PostBox";
+
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+function Subreddit({ params }: Props) {
+  // E.g. `/subreddit/nextjs`
+  console.log("URL Params:", params);
+  const topic = params!.topic;
+  return (
+    <div className="h-24 bg-red-400 p-8">
+      {/* <p>{params!.topic}</p> */}
+      <div className="-mx-8 mt-10 bg-white">
+        <div className="mx-auto flex max-w-5xl items-center space-x-4 pb-3">
+          <div className="-mt-5">
+            {/* @ts-expect-error Server Component */}
+            <Avatar seed={topic as string} large />
+          </div>
+          <div className="py-2">
+            <h1 className="text-3xl font-semibold">
+              Welcome to the r/{topic} subreddit{" "}
+            </h1>
+            <p className="text-sm text-gray-400">r/{topic}</p>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto max-w-5xl pb-10 mt-5">
+        <PostBox subreddit={topic as string} />
+        <Feed />
+      </div>
+    </div>
+  );
+}
+
+export default Subreddit;
+
+
+```
+
+### Update app/PostBox.tsx:
+
+Add subreddit prop:
+
+```
+import React from "react";
+import Avatar from "./Avatar";
+import Form from "./Form";
+
+type Props = {
+  subreddit?: string;
+};
+
+function PostBox({ subreddit }: Props) {
+  return (
+    <div className="sticky top-16 z-40">
+      <div className="flex space-x-3 bg-white border border-gray-300 rounded-md p-2">
+        {/* @ts-expect-error Server Component */}
+        <Avatar />
+        <Form subreddit={subreddit} />
+      </div>
+    </div>
+  );
+}
+
+export default PostBox;
+
+```
+
+### Update app/Form.tsx:
+
+Check if we passed a subreddit already and update the form inputs accordingly.
+
+```
+"use client";
+import React, { useState } from "react";
+import { PhotoIcon, LinkIcon } from "@heroicons/react/24/outline";
+import { useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
+import { useMutation } from "@apollo/client";
+import { ADD_POST, ADD_SUBREDDIT } from "../graphql/mutations";
+import client from "../apollo-client";
+import { GET_ALL_POSTS, GET_SUBREDDIT_BY_TOPIC } from "../graphql/queries";
+import toast from "react-hot-toast";
+
+type FormData = {
+  postTitle: string;
+  postBody: string;
+  postImage: string;
+  subreddit: string;
+};
+
+type Props = {
+  subreddit?: string;
+};
+
+function Form({ subreddit }: Props) {
+  console.log("Subreddit:", subreddit);
+  const { data: session } = useSession();
+  const [imageBoxOpen, setImageBoxOpen] = useState<boolean>(false);
+
+  // const [addPost] = useMutation(ADD_POST);
+  const [addPost] = useMutation(ADD_POST, {
+    refetchQueries: [GET_ALL_POSTS, "getPostList"],
+  });
+
+  const [addSubreddit] = useMutation(ADD_SUBREDDIT);
+
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  console.log(watch("postTitle")); // watch input value by passing the name of it
+
+  const onSubmit = handleSubmit(async (formData) => {
+    console.log(formData);
+    const notification = toast.loading("Creating a new post...");
+
+    try {
+      // Query for the subreddit topic
+      const {
+        data: { getSubredditListByTopic },
+      } = await client.query({
+        query: GET_SUBREDDIT_BY_TOPIC,
+        variables: {
+          topic: subreddit || formData.subreddit,
+        },
+      });
+
+      // Check if subreddit exists
+      const subredditExists = getSubredditListByTopic.length > 0;
+      if (!subredditExists) {
+        // Create a subreddit
+        console.log("Subreddit is new! -> Creating a new Subreddit!");
+
+        const {
+          data: { insertSubreddit: newSubreddit },
+        } = await addSubreddit({
+          variables: { topic: formData.subreddit },
+        });
+        console.log("Creating a post...", formData);
+        // To avoid a bug if postImage is undefined cast to empty string to fix bug
+        const image = formData.postImage || "";
+
+        const {
+          data: { insertPost: newPost },
+        } = await addPost({
+          variables: {
+            body: formData.postBody,
+            image: image,
+            subreddit_id: newSubreddit.id,
+            title: formData.postTitle,
+            username: session?.user?.name,
+          },
+        });
+
+        console.log("New post added:", newPost);
+      } else {
+        //use existing subreddit
+        console.log("Using existing subreddit!");
+        console.log(getSubredditListByTopic);
+        const image = formData.postImage || "";
+
+        const {
+          data: { insertPost: newPost },
+        } = await addPost({
+          variables: {
+            body: formData.postBody,
+            image: image,
+            subreddit_id: getSubredditListByTopic[0].id,
+            title: formData.postTitle,
+            username: session?.user?.name,
+          },
+        });
+        console.log("New post added:", newPost);
+      }
+      //After post had been added!
+      setValue("postTitle", "");
+      setValue("postBody", "");
+      setValue("postImage", "");
+      setValue("subreddit", "");
+      toast.success("New Post Created!", { id: notification });
+    } catch (error) {
+      toast.error("Whopps something went wrong!", { id: notification });
+      console.log(error);
+    }
+  });
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col flex-1">
+      <div className="flex flex-1 space-x-3  items-center ">
+        <input
+          {...register("postTitle", { required: true })}
+          disabled={!session}
+          type="text"
+          placeholder={
+            session
+              ? subreddit
+                ? `Create a post in r/${subreddit}`
+                : "Create a post by entering a title"
+              : "Sign in to post"
+          }
+          className="flex-1 rounded-md bg-gray50 p-2 pl-5 outline-none"
+        />
+        <PhotoIcon
+          className={`h-6 w-6 text-gray-300 cursor-pointer ${
+            imageBoxOpen && "text-blue-300"
+          }`}
+          onClick={() => setImageBoxOpen(!imageBoxOpen)}
+        />
+        <LinkIcon className={`h-6 w-6 text-gray-300 cursor-pointer`} />
+      </div>
+      {/* if postTitle active set to true */}
+      {!!watch("postTitle") && (
+        <div className="flex flex-col py-2">
+          <div className="flex items-center px-2">
+            <p className="min-w-[90px]">Body:</p>
+            <input
+              className="flex-1 m-2 bg-blue-50  p-2 outline-none"
+              {...register("postBody")}
+              type="text"
+              placeholder="Text (optional)"
+            />
+          </div>
+
+          {!subreddit && (
+            <div className="flex items-center px-2">
+              <p className="min-w-[90px]">Subreddit:</p>
+              <input
+                className=" m-2 flex-1 bg-blue-50  p-2 outline-none"
+                {...register("subreddit", { required: true })}
+                type="text"
+                placeholder="i.e nextjs"
+              />
+            </div>
+          )}
+
+          {imageBoxOpen && (
+            <div className="flex items-center px-2">
+              <p className="min-w-[90px]">Image URL:</p>
+              <input
+                className=" m-2 flex-1 bg-blue-50  p-2 outline-none"
+                {...register("postImage")}
+                type="text"
+                placeholder="Optional..."
+              />
+            </div>
+          )}
+          {/* Errors */}
+          {Object.keys(errors).length > 0 && (
+            <div className="space-y-2 p-2 text-red-500">
+              {errors.postTitle?.type === "required" && (
+                <p>A post title is required.</p>
+              )}
+              {errors.subreddit?.type === "required" && (
+                <p>A subreddit is required.</p>
+              )}
+            </div>
+          )}
+
+          {!!watch("postTitle") && (
+            <button
+              type="submit"
+              className="w-full rounded-full bg-blue-400 p-2 text-white"
+            >
+              Create Post
+            </button>
+          )}
+        </div>
+      )}
+    </form>
+  );
+}
+
+export default Form;
+
+```
+
+### Update app/subreddit/[topic]/page.tsx:
+
+```
+import React from "react";
+import Avatar from "../../Avatar";
+import Feed from "../../Feed";
+import PostBox from "../../PostBox";
+
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+function Subreddit({ params }: Props) {
+  // E.g. `/subreddit/nextjs`
+  console.log("URL Params:", params);
+  const topic = params!.topic;
+  return (
+    <div className="h-24 bg-red-400 p-8">
+      {/* <p>{params!.topic}</p> */}
+      <div className="-mx-8 mt-10 bg-white">
+        <div className="mx-auto flex max-w-5xl items-center space-x-4 pb-3">
+          <div className="-mt-5">
+            {/* @ts-expect-error Server Component */}
+            <Avatar seed={topic as string} large />
+          </div>
+          <div className="py-2">
+            <h1 className="text-3xl font-semibold">
+              Welcome to the r/{topic} subreddit{" "}
+            </h1>
+            <p className="text-sm text-gray-400">r/{topic}</p>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto max-w-5xl pb-10 mt-5">
+        <PostBox subreddit={topic as string} />
+        <Feed topic={topic as string} />
+      </div>
+    </div>
+  );
+}
+
+export default Subreddit;
+```
+
+### Update stepzen/postgresql/index.graphql:
+
+Create a new query called getPostListByTopic.
+
+```
+  getPostListByTopic(topic: String!): [Post]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT *, "post".id FROM "post"
+      JOIN "subreddit" ON "subreddit"."id"="post"."subreddit_id"
+      WHERE "subreddit"."topic"=$1
+      ORDER BY "post"."created_at" DESC
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+### Update graphql/queries.tsx:
+
+```
+import { gql } from "@apollo/client";
+
+export const GET_SUBREDDIT_BY_TOPIC = gql`
+  query GetSubredditByTopic($topic: String!) {
+    getSubredditListByTopic(topic: $topic) {
+      id
+      topic
+      created_at
+    }
+  }
+`;
+
+export const GET_ALL_POSTS = gql`
+  query GetAllPosts {
+    getPostList {
+      body
+      created_at
+      id
+      image
+      title
+      subreddit_id
+      username
+      subreddit {
+        topic
+        id
+        created_at
+      }
+      comment {
+        created_at
+        id
+        post_id
+        text
+        username
+      }
+      vote {
+        created_at
+        id
+        post_id
+        upvote
+        username
+      }
+    }
+  }
+`;
+
+
+export const GET_ALL_POSTS_BY_TOPIC = gql`
+  query GetAllPostsByTopic($topic: String!) {
+    getPostListByTopic(topic:$topic) {
+      body
+      created_at
+      id
+      image
+      title
+      subreddit_id
+      username
+      subreddit {
+        topic
+        id
+        created_at
+      }
+      comment {
+        created_at
+        id
+        post_id
+        text
+        username
+      }
+      vote {
+        created_at
+        id
+        post_id
+        upvote
+        username
+      }
+    }
+  }
+`;
+
+
+```
+
+### Update app/Feed.tsx:
+
+```
+"use client";
+import client from "../apollo-client";
+import { useQuery } from "@apollo/client";
+import React from "react";
+import { GET_ALL_POSTS, GET_ALL_POSTS_BY_TOPIC } from "../graphql/queries";
+import Post from "./Post";
+
+type Props = {
+  topic?: string;
+};
+function Feed({ topic }: Props) {
+  // const { data, error } = await client.query({
+  //   query: GET_ALL_POSTS,
+  // });
+
+  // const { data, error } = useQuery(GET_ALL_POSTS);
+
+  const { data, error } = !topic
+    ? useQuery(GET_ALL_POSTS)
+    : useQuery(GET_ALL_POSTS_BY_TOPIC, { variables: { topic: topic } });
+
+  if (data) {
+    console.log("Data:", data);
+  } else {
+    console.log(error);
+  }
+
+  // const posts: Post[] = data?.getPostList;
+  const posts: Post[] = !topic ? data?.getPostList : data?.getPostListByTopic;
+  console.log("Posts:", posts);
+
+  return (
+      <div className="mt-5 space-y-4 max-w-5xl mx-auto flex-1">
+      {posts?.map((post) => (
+        <Post key={post.id} post={post} />
+      ))}
+    </div>
+  );
+}
+
+export default Feed;
+
+```
+
+### Update app/Header.tsx:
+
+Add link to homepage.
+
+```
+import Image from "next/image";
+import React from "react";
+import {
+  HomeIcon,
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/solid";
+import {
+  VideoCameraIcon,
+  GlobeEuropeAfricaIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  BellIcon,
+  PlusIcon,
+  MegaphoneIcon,
+  ArrowTopRightOnSquareIcon,
+} from "@heroicons/react/24/outline";
+import Dropdown from "./Dropdown";
+import { unstable_getServerSession } from "next-auth/next";
+import LoginBtn from "./LoginBtn";
+import Link from "next/link";
+
+type Props = {};
+
+export default async function Header({}: Props) {
+  // const loggedIn = false;
+  const session = await unstable_getServerSession();
+  // console.log(session);
+  // console.log("Header here!");
+
+  return (
+    <>
+      <div className="sticky top-0 z-50 flex bg-white px-4 py-2">
+        <div className="relative hidden lg:inline-flex flex-shrink-0 cursor-pointer">
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="reddit logo"
+              width={96}
+              height={40}
+              className="object-contain"
+            />
+          </Link>
+        </div>
+        <div className="relative flex lg:hidden items-center flex-shrink-0 cursor-pointer">
+          <Image
+            src="/reddit-icon.png"
+            alt="reddit logo"
+            className="object-contain"
+            width={32}
+            height={32}
+          />
+        </div>
+        <div className="mx-7 flex items-center xl:min-w-[300px]">
+          <HomeIcon className="h-5 w-5" />
+          <p className="flex-1 ml-2 hidden lg:inline-flex">Home</p>
+          <ChevronDownIcon className="h-5 w-4 ml-1 " />
+        </div>
+        <form className="flex flex-1 items-center space-x-2 rounded-full border border-gray-200 bg-gray-100 focus:bg-white px-3 py-1 mr-2">
+          <MagnifyingGlassIcon className="h-5 w-h-6 w-6 text-gray-400" />
+          <input
+            className="flex-1 bg-transparent outline-none"
+            type="text"
+            placeholder="Search Reddit"
+          />
+          <button type="submit" hidden />
+        </form>
+
+        {/* {loggedIn ? ( */}
+        {session ? (
+          <div>
+            <div className="flex items-center space-x-2 text-gray-800">
+              <div className=" hidden items-center space-x-2 md:inline-flex">
+                <ArrowTopRightOnSquareIcon className="icon" />
+                <VideoCameraIcon className="icon" />
+                <GlobeEuropeAfricaIcon className="icon" />
+                <ChatBubbleOvalLeftEllipsisIcon className="icon" />
+                <BellIcon className="icon" />
+                <PlusIcon className="icon" />
+                <button className="bg-gray-100 rounded-full items-center py-1 px-2 hidden lg:inline-flex">
+                  <MegaphoneIcon className="icon" />{" "}
+                  <span className="text-sm">Advertise</span>
+                </button>
+              </div>
+
+              <div className="ml-5 flex items-center">
+                <Dropdown />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="cursor-pointer items-center space-x-2 border-border-gray-100 flex ">
+            {/* <p className="bg-reddit text-white text-sm rounded-full py-2 px-3 hidden md:inline-flex">
+            Log In
+          </p> */}
+            <LoginBtn />
+            <Dropdown />
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+```
+
+### Update app/Post.tsx:
+
+Add link to subreddit.
+
+```
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  BookmarkIcon,
+  ChatBubbleBottomCenterIcon,
+  EllipsisHorizontalIcon,
+  GiftIcon,
+  ShareIcon,
+} from "@heroicons/react/24/outline";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import Avatar from "./Avatar";
+import Time from "./Time";
+
+type Props = {
+  post: Post;
+};
+
+function Post({ post }: Props) {
+  // console.log(post.subreddit.topic);
+  // console.log(post);
+
+  return (
+      <div className="flex cursor-pointer rounded-md border border-gray-300 bg-white shadow-sm hover:border hover:border-gray-600">
+        {/* Votes */}
+        <div className="flex flex-col items-center justify-start space-y-1 rounded-l-md bg-gray-50 p-4 text-gray-400">
+          <ArrowUpIcon className="voteButtons hover:text-red-400" />
+          <p className="text-xs font-bold text-black">0</p>
+          <ArrowDownIcon className="voteButtons hover:text-blue-400" />
+        </div>
+
+        <div className="p-3 pb-1">
+          {/* Header */}
+          <div className="flex items-center space-x-2">
+            {/* @ts-expect-error Server Component
+          <Avatar seed={post.subreddit.topic} /> */}
+            <Image
+              src={`https://avatars.dicebear.com/api/open-peeps/${
+                post.subreddit.topic || post.username || "placeholder"
+              }.svg`}
+              alt="Avatar Image"
+              width={50}
+              height={50}
+              className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+            />
+            <p className="text-xs text-gray-400">
+              <Link href={`/subreddit/${post.subreddit.topic}`}>
+                <span className="font-bold text-black hover:text-blue-400 hover:underline">
+                  r/{post.subreddit.topic}
+                </span>{" "}
+              </Link>
+              · Posted by u/{post.username} <Time date={post.created_at} />
+            </p>
+          </div>
+
+          {/* Body */}
+          <div className="py-4">
+            <Link href={`/post/${post.id}`}>
+            {" "}
+            <h2 className="text-xl font-semibold">{post.title}</h2>
+          </Link>
+            <h2 className="mt-2 text-sm font-light">{post.body}</h2>
+          </div>
+
+          {/* Image */}
+          <img src={post.image} alt="" className="w-full" />
+
+          {/* Footer */}
+          <div className="flex space-x-4 text-gray-400">
+            <div className="postButtons">
+              <ChatBubbleBottomCenterIcon className="h-6 w-6" />
+              <p className="">{post.comment.length} Comments</p>
+            </div>
+            <div className="postButtons">
+              <GiftIcon className="h-6 w-6" />
+              <p className="hidden sm:inline">Award</p>
+            </div>
+            <div className="postButtons">
+              <ShareIcon className="h-6 w-6" />
+              <p className="hidden sm:inline">Share</p>
+            </div>
+            <div className="postButtons">
+              <BookmarkIcon className="h-6 w-6" />
+              <p className="hidden sm:inline">Save</p>
+            </div>
+            <div className="postButtons">
+              <EllipsisHorizontalIcon className="h-6 w-6" />
+            </div>
+          </div>
+        </div>
+      </div>
+  );
+}
+
+export default Post;
+
+```
+
+### Create app/post/[postId]/page.tsx:
+
+```
+import React from "react";
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+function page({ params }: Props) {
+  console.log("postID URL Params:",params);
+  return <div>{params!.postId}</div>;
+}
+
+export default page;
+
+```
+
+### Update stepzen/postgresql/index.graphql:
+
+Add a new query getPostListByPostId.
+
+```
+  getPostListByPostId(post_id: ID!): Post
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT * FROM "post"
+      WHERE "post"."id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+### Update grpahql/queries.tsx:
+
+Create GET_POST_BY_POST_ID.
+
+```
+import { gql } from "@apollo/client";
+
+export const GET_SUBREDDIT_BY_TOPIC = gql`
+  query GetSubredditByTopic($topic: String!) {
+    getSubredditListByTopic(topic: $topic) {
+      id
+      topic
+      created_at
+    }
+  }
+`;
+
+
+export const GET_ALL_POSTS = gql`
+  query GetAllPosts {
+    getPostList {
+      body
+      created_at
+      id
+      image
+      title
+      subreddit_id
+      username
+      subreddit {
+        topic
+        id
+        created_at
+      }
+      comment {
+        created_at
+        id
+        post_id
+        text
+        username
+      }
+      vote {
+        created_at
+        id
+        post_id
+        upvote
+        username
+      }
+    }
+  }
+`;
+
+export const GET_ALL_POSTS_BY_TOPIC = gql`
+  query GetAllPostsByTopic($topic: String!) {
+    getPostListByTopic(topic: $topic) {
+      body
+      created_at
+      id
+      image
+      title
+      subreddit_id
+      username
+      subreddit {
+        topic
+        id
+        created_at
+      }
+      comment {
+        created_at
+        id
+        post_id
+        text
+        username
+      }
+      vote {
+        created_at
+        id
+        post_id
+        upvote
+        username
+      }
+    }
+  }
+`;
+
+
+export const GET_POST_BY_POST_ID = gql`
+  query GetPostByPostId($post_id: ID!) {
+    getPostListByPostId(post_id: $post_id) {
+      body
+      created_at
+      id
+      image
+      title
+      subreddit_id
+      username
+      subreddit {
+        topic
+        id
+        created_at
+      }
+      comment {
+        created_at
+        id
+        post_id
+        text
+        username
+      }
+      vote {
+        created_at
+        id
+        post_id
+        upvote
+        username
+      }
+    }
+  }
+`;
+
+```
+
+### Install UI Ball Loaders:
+
+Go to https://uiball.com/loaders/
+
+```
+npm i @uiball/loaders
+```
+
+### Update app/Post.tsx:
+
+```
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  BookmarkIcon,
+  ChatBubbleBottomCenterIcon,
+  EllipsisHorizontalIcon,
+  GiftIcon,
+  ShareIcon,
+} from "@heroicons/react/24/outline";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import Avatar from "./Avatar";
+import Time from "./Time";
+import { Jelly } from "@uiball/loaders";
+
+type Props = {
+  post: Post;
+};
+
+function Post({ post }: Props) {
+  // console.log(post.subreddit.topic);
+  // console.log(post);
+  if(!post) return (
+    <div className="flex w-full items-center p-10 justify-center text-xl">
+      <Jelly size={50} color="#FF4501" />
+    </div>
+  );
+
+  return (
+
+      <div className="flex cursor-pointer rounded-md border border-gray-300 bg-white shadow-sm hover:border hover:border-gray-600">
+        {/* Votes */}
+        <div className="flex flex-col items-center justify-start space-y-1 rounded-l-md bg-gray-50 p-4 text-gray-400">
+          <ArrowUpIcon className="voteButtons hover:text-red-400" />
+          <p className="text-xs font-bold text-black">0</p>
+          <ArrowDownIcon className="voteButtons hover:text-blue-400" />
+        </div>
+
+        <div className="p-3 pb-1">
+          {/* Header */}
+          <div className="flex items-center space-x-2">
+            {/* @ts-expect-error Server Component
+          <Avatar seed={post.subreddit.topic} /> */}
+            <Image
+              src={`https://avatars.dicebear.com/api/open-peeps/${
+                post.subreddit.topic || post.username || "placeholder"
+              }.svg`}
+              alt="Avatar Image"
+              width={50}
+              height={50}
+              className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+            />
+            <p className="text-xs text-gray-400">
+              <Link href={`/subreddit/${post.subreddit.topic}`}>
+                <span className="font-bold text-black hover:text-blue-400 hover:underline">
+                  r/{post.subreddit.topic}
+                </span>{" "}
+              </Link>
+              · Posted by u/{post.username} <Time date={post.created_at} />
+            </p>
+          </div>
+
+          {/* Body */}
+          <div className="py-4">
+             <Link href={`/post/${post.id}`}>
+            {" "}
+            <h2 className="text-xl font-semibold">{post.title}</h2>
+          </Link>
+            <h2 className="mt-2 text-sm font-light">{post.body}</h2>
+          </div>
+
+          {/* Image */}
+          <img src={post.image} alt="" className="w-full" />
+
+          {/* Footer */}
+          <div className="flex space-x-4 text-gray-400">
+            <div className="postButtons">
+              <ChatBubbleBottomCenterIcon className="h-6 w-6" />
+              <p className="">{post.comment.length} Comments</p>
+            </div>
+            <div className="postButtons">
+              <GiftIcon className="h-6 w-6" />
+              <p className="hidden sm:inline">Award</p>
+            </div>
+            <div className="postButtons">
+              <ShareIcon className="h-6 w-6" />
+              <p className="hidden sm:inline">Share</p>
+            </div>
+            <div className="postButtons">
+              <BookmarkIcon className="h-6 w-6" />
+              <p className="hidden sm:inline">Save</p>
+            </div>
+            <div className="postButtons">
+              <EllipsisHorizontalIcon className="h-6 w-6" />
+            </div>
+          </div>
+        </div>
+      </div>
+  );
+}
+
+export default Post;
+
+```
+
+### Update app/post/[postId]/page.tsx:
+
+```
+"use client";
+import { useQuery } from "@apollo/client";
+import React from "react";
+import { GET_POST_BY_POST_ID } from "../../../graphql/queries";
+import Post from "../../Post";
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+function page({ params }: Props) {
+  console.log("postID URL Params:", params);
+
+  // While doing pre-fecth post is undefined
+  const { data, error } = useQuery(GET_POST_BY_POST_ID, {
+    variables: { post_id: params!.postId },
+  });
+
+  if (data) {
+    console.log("Data:", data);
+  } else {
+    console.log(error);
+  }
+
+  // const posts: Post[] = data?.getPostList;
+  const post: Post = data?.getPostListByPostId;
+  console.log("Post:", post);
+
+  return (
+    <div className="mx-auto my-7 max-w-5xl">
+      <Post post={post} />
+    </div>
+  );
+}
+
+export default page;
+
+```
+
+## Create Comment Functionality:
+
+### Update app/post/[postId]/page.tsx:
+
+```
+"use client";
+import { useQuery } from "@apollo/client";
+import { useSession } from "next-auth/react";
+import React from "react";
+import { GET_POST_BY_POST_ID } from "../../../graphql/queries";
+import Post from "../../Post";
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+function page({ params }: Props) {
+  console.log("postID URL Params:", params);
+
+  const { data: session } = useSession();
+
+  // While doing pre-fecth post is undefined
+  const { data, error } = useQuery(GET_POST_BY_POST_ID, {
+    variables: { post_id: params!.postId },
+  });
+
+  if (data) {
+    console.log("Data:", data);
+  } else {
+    console.log(error);
+  }
+
+  // const posts: Post[] = data?.getPostList;
+  const post: Post = data?.getPostListByPostId;
+  console.log("Post:", post);
+
+  return (
+    <div className="mx-auto my-7 max-w-5xl">
+      <Post post={post} />
+      <div className="-mt-1 rounded-b-md border-t-0 border-gray-300 bg-white p-5 pl-16">
+        <p className="text-sm">
+          {" "}
+          Comment as <span className="text-red-500">{session?.user?.name}</span>
+        </p>
+
+        <form className="flex flex-col space-y-2">
+          <textarea
+            disabled={!session}
+            className="h-24 rounded-md border border-gray-200 p-2 pl-4 outline-none disabled:bg-gray-50"
+            placeholder={
+              session ? "What are your thoughts?" : "Pleasesign in to comment"
+            }
+          />
+          <button
+            disabled={!session}
+            type="submit"
+            className="rounded-full bg-red-500 p-3 font-semibold text-white disabled:bg-gray-200"
+          >
+            Comment
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default page;
+
+```
+
+### Implementing React Hook Form in app/post/[postId]/page.tsx:
+
+```
+"use client";
+import { useQuery } from "@apollo/client";
+import { useSession } from "next-auth/react";
+import React from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { GET_POST_BY_POST_ID } from "../../../graphql/queries";
+import Post from "../../Post";
+
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+type FormData = {
+  comment: string;
+};
+
+function page({ params }: Props) {
+  //   console.log("postID URL Params:", params);
+
+  const { data: session } = useSession();
+
+  // While doing pre-fecth post is undefined
+  const { data, error } = useQuery(GET_POST_BY_POST_ID, {
+    variables: { post_id: params!.postId },
+  });
+
+  //   if (data) {
+  //     console.log("Data:", data);
+  //   } else {
+  //     console.log(error);
+  //   }
+
+  // const posts: Post[] = data?.getPostList;
+  const post: Post = data?.getPostListByPostId;
+  //   console.log("Post:", post);
+
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  //   Alternative way to submit form using react hook (Form.tsx way recommended)
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    // post comment here...
+    console.log(data);
+  };
+
+  return (
+    <div className="mx-auto my-7 max-w-5xl">
+      <Post post={post} />
+      {post &&
+      <div className="-mt-1 rounded-b-md border-t-0 border-gray-300 bg-white p-5 pl-16">
+        <p className="text-sm">
+          {" "}
+          Comment as <span className="text-red-500">{session?.user?.name}</span>
+        </p>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col space-y-2"
+        >
+          <textarea
+            {...register("comment")}
+            disabled={!session}
+            className="h-24 rounded-md border border-gray-200 p-2 pl-4 outline-none disabled:bg-gray-50"
+            placeholder={
+              session ? "What are your thoughts?" : "Pleasesign in to comment"
+            }
+          />
+          <button
+            disabled={!session}
+            type="submit"
+            className="rounded-full bg-red-500 p-3 font-semibold text-white disabled:bg-gray-200"
+          >
+            Comment
+          </button>
+        </form>
+      </div>
+      }
+    </div>
+  );
+}
+
+export default page;
+
+```
+
+### Create a mutation to add comments:
+
+We need to create a new mutation ADD_COMMENT. We make use of the existing insertComment in stepzen/postgresql/indes.graphql:
+
+```
+ insertComment(username: String, post_id: ID, text: String): Comment
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comment"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+```
+
+In graphql/mutations.tsx:
+
+```
+import { gql } from "@apollo/client";
+
+export const ADD_POST = gql`
+  mutation MyMutation(
+    $title: String!
+    $body: String!
+    $image: String!
+    $subreddit_id: ID!
+    $username: String!
+  ) {
+    insertPost(
+      title: $title
+      body: $body
+      image: $image
+      subreddit_id: $subreddit_id
+      username: $username
+    ) {
+      title
+      body
+      image
+      subreddit_id
+      username
+      created_at
+    }
+  }
+`;
+
+export const ADD_SUBREDDIT = gql`
+  mutation MyMutation($topic: String!) {
+    insertSubreddit(topic: $topic) {
+      id
+      topic
+      created_at
+    }
+  }
+`;
+
+export const ADD_COMMENT = gql`
+  mutation MyMutation($post_id:ID!, $username:String!, $text: String!) {
+    insertComment(post_id: $post_id,username:$username,text:$text) {
+      created_at
+      id
+      post_id
+      text
+      username
+    }
+  }
+`;
+
+```
+
+### Refetching all the Comments when a new comment is added:
+
+In app/post/[postId]/page.tsx:
+
+```
+"use client";
+import { useMutation, useQuery } from "@apollo/client";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import React from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { ADD_COMMENT } from "../../../graphql/mutations";
+import { GET_POST_BY_POST_ID } from "../../../graphql/queries";
+// import Avatar from "../../Avatar";
+import Post from "../../Post";
+import Time from "../../Time";
+
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+type FormData = {
+  comment: string;
+};
+
+function page({ params }: Props) {
+  //   console.log("postID URL Params:", params);
+
+  const { data: session } = useSession();
+
+  // While doing pre-fecth post is undefined
+  const { data, error } = useQuery(GET_POST_BY_POST_ID, {
+    variables: { post_id: params!.postId },
+  });
+
+  const [addComment] = useMutation(ADD_COMMENT, {
+    refetchQueries: [GET_POST_BY_POST_ID, "getPostListByPostId"],
+  });
+
+  if (data) {
+    console.log("Data:", data);
+  } else {
+    console.log(error);
+  }
+
+  // const posts: Post[] = data?.getPostList;
+  const post: Post = data?.getPostListByPostId;
+  //   console.log("Post:", post);
+
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  //   Alternative way to submit form using react hook (Form.tsx way recommended)
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    // post comment here...
+    console.log(data);
+
+    const notification = toast.loading("Posting your comment...");
+    await addComment({
+      variables: {
+        post_id: params!.postId,
+        username: session?.user?.name,
+        text: data.comment,
+      },
+    });
+
+    setValue("comment", "");
+
+    toast.success("Comment posted successfully!", {
+      id: notification,
+    });
+    console.log("Form data:", data);
+  };
+
+  return (
+    <div className="mx-auto my-7 max-w-5xl">
+      <Post post={post} />
+      {post && (
+        <>
+          <div className="-mt-1 rounded-b-md border-t-0 border-gray-300 bg-white p-5 pl-16">
+            <p className="text-sm">
+              {" "}
+              Comment as{" "}
+              <span className="text-red-500">{session?.user?.name}</span>
+            </p>
+
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col space-y-2"
+            >
+              <textarea
+                {...register("comment")}
+                disabled={!session}
+                className="h-24 rounded-md border border-gray-200 p-2 pl-4 outline-none disabled:bg-gray-50"
+                placeholder={
+                  session
+                    ? "What are your thoughts?"
+                    : "Pleasesign in to comment"
+                }
+              />
+              <button
+                disabled={!session}
+                type="submit"
+                className="rounded-full bg-red-500 p-3 font-semibold text-white disabled:bg-gray-200"
+              >
+                Comment
+              </button>
+            </form>
+          </div>
+
+          <div className="-my-5 rounded-b-md border-t-0 border-gray-300 bg-white py-5 px-10">
+            <hr className="py-2" />
+            {post?.comment.map((comment) => (
+              <div
+                key={comment.id}
+                className="relative flex items-center space-x-2 space-y-5"
+              >
+                <hr className="absolute top-10 h-16 border left-7 z-0 " />
+                <div className="z-50">
+                  {/* @ts-expect-error Server Component
+              <Avatar seed={comment.username} /> */}
+                  <Image
+                    src={`https://avatars.dicebear.com/api/open-peeps/${
+                      comment.username || "placeholder"
+                    }.svg`}
+                    alt="Avatar Image"
+                    width={50}
+                    height={50}
+                    className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <p className="py-2 text-xs text-gray-400">
+                    <span className="font-semibold text-gray-600">
+                      {comment.username}
+                    </span>{" "}
+                    · <Time date={comment.created_at} />
+                  </p>
+                  <p>{comment.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default page;
+
+```
+
+## Implement UpVote and DownVote Functionality:
+
+### We make use of the existing query insertVote in stepzen/postgresql/index.graphql:
+
+```
+  insertVote(
+    username: String
+    post_id: ID
+    created_at: DateTime
+    upvote: Boolean
+  ): Vote
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "vote"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+```
+
+### Add a new mutation in graphql/mutations.tsx:
+
+```
+
+export const ADD_VOTE = gql`
+  mutation MyMutation(
+    $username: String!
+    $post_id: ID!
+    $created_at: DateTime!
+    $upvote: Boolean!
+  ) {
+    insertVote(
+      username: $username
+      post_id: $post_id
+      created_at: $created_at
+      upvote: $upvote
+    ) {
+      created_at
+      id
+      post_id
+      upvote
+      username
+    }
+  }
+`;
+
+```
+
+### Create a new query getVotesByPostId in in stepzen/postgresql/index.graphql:
+
+```
+getVotesByPostId(post_id: ID!): [Vote]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT * FROM "vote" WHERE "post_id" = $1 ORDER BY "created_at"  DESC
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+### Add a new query in graphq/queries.tsx:
+
+```
+export const GET_ALL_VOTES_BY_POST_ID = gql`
+  query GetAllVotesByPostId($post_id: ID!) {
+   getVotesByPostId(post_id: $post_id) {
+        created_at
+        id
+        post_id
+        upvote
+        username
+    }
+  }
+`;
+```
+
+### In app/Post.tsx:
+
+```
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  BookmarkIcon,
+  ChatBubbleBottomCenterIcon,
+  EllipsisHorizontalIcon,
+  GiftIcon,
+  ShareIcon,
+} from "@heroicons/react/24/outline";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import Avatar from "./Avatar";
+import Time from "./Time";
+import { Jelly } from "@uiball/loaders";
+import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
+import { GET_ALL_VOTES_BY_POST_ID } from "../graphql/queries";
+import { useMutation, useQuery } from "@apollo/client";
+import { ADD_VOTE } from "../graphql/mutations";
+
+type Props = {
+  post: Post;
+};
+
+function Post({ post }: Props) {
+  // console.log(post.subreddit.topic);
+  // console.log(post);
+
+  const { data: session } = useSession();
+  // console.log(session);
+
+  const [vote, setVote] = useState<boolean | undefined>();
+
+  const { data, error } = useQuery(GET_ALL_VOTES_BY_POST_ID, {
+    variables: {
+      post_id: post?.id,
+    },
+  });
+
+  console.log("Data:", data);
+  // if (data) {
+  //   console.log("Data:", data);
+  // } else {
+  //   console.log(error);
+  // }
+
+  const [addVote] = useMutation(ADD_VOTE, {
+    refetchQueries: [GET_ALL_VOTES_BY_POST_ID, "getVotesByPostId"],
+  });
+
+  // isUpvote: true (voted Up), false(voted Down), undefined(not voted)
+  const upVote = async (isUpvote: boolean) => {
+    if (!session) {
+      toast("You'll need to sign in to Vote!");
+      return;
+    }
+    // If you already voted and you are trying to upvote return null
+    if (vote && isUpvote) return;
+    // If you have not voted and you are trying to upvote or downvote multiple times return null
+    if (vote === false && !isUpvote) return;
+
+    console.log("Voting...", isUpvote);
+
+    const {
+      data: { insertVote: newVote },
+    } = await addVote({
+      variables: {
+        username: session.user?.name,
+        post_id: post.id,
+        created_at: new Date(),
+        upvote: isUpvote,
+      },
+    });
+    console.log("Voted successfully", data);
+  };
+
+  const displayVotes = (data: any) => {
+    const votes: Vote[] = data?.getVotesByPostId;
+    const displayNumber = votes?.reduce(
+      (total, vote) => (vote.upvote ? (total += 1) : (total -= 1)),
+      0
+    );
+    if (votes?.length === 0) return 0;
+    if (displayNumber === 0) {
+      return votes[0]?.upvote ? 1 : -1;
+    }
+    return displayNumber;
+  };
+
+  useEffect(() => {
+    const votes: Vote[] = data?.getVotesByPostId;
+    console.log("Votes:", votes);
+    // Latest vote (As we sorted by newly created first in SQL query with ORDER BY "created_at"  DESC)
+    // Note: You could improve this by moving it to the original Query
+    const vote = votes?.find(
+      (vote) => vote.username === session?.user?.name
+    )?.upvote;
+    console.log("isUpvote:", vote);
+
+    setVote(vote);
+  }, [data]);
+
+  if (!post)
+    return (
+      <div className="flex w-full items-center p-10 justify-center text-xl">
+        <Jelly size={50} color="#FF4501" />
+      </div>
+    );
+
+  return (
+    <div className="flex cursor-pointer rounded-md border border-gray-300 bg-white shadow-sm hover:border hover:border-gray-600">
+      {/* Votes */}
+      <div className="flex flex-col items-center justify-start space-y-1 rounded-l-md bg-gray-50 p-4 text-gray-400">
+        <ArrowUpIcon
+          onClick={() => upVote(true)}
+          className={`voteButtons hover:text-blue-400 ${
+            vote && "text-blue-400"
+          }`}
+        />
+        <p className="text-xs font-bold text-black">{displayVotes(data)}</p>
+        <ArrowDownIcon
+          onClick={() => upVote(false)}
+          className={`voteButtons hover:text-red-400  ${
+            vote === false && "text-red-400"
+          }`}
+        />
+      </div>
+
+      <div className="p-3 pb-1">
+        {/* Header */}
+        <div className="flex items-center space-x-2">
+          {/* @ts-expect-error Server Component
+          <Avatar seed={post.subreddit.topic} /> */}
+          <Image
+            src={`https://avatars.dicebear.com/api/open-peeps/${
+              post.subreddit.topic || post.username || "placeholder"
+            }.svg`}
+            alt="Avatar Image"
+            width={50}
+            height={50}
+            className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+          />
+          <p className="text-xs text-gray-400">
+            <Link href={`/subreddit/${post.subreddit.topic}`}>
+              <span className="font-bold text-black hover:text-blue-400 hover:underline">
+                r/{post.subreddit.topic}
+              </span>{" "}
+            </Link>
+            · Posted by u/{post.username} <Time date={post.created_at} />
+          </p>
+        </div>
+
+        {/* Body */}
+        <div className="py-4">
+          <Link href={`/post/${post.id}`}>
+            {" "}
+            <h2 className="text-xl font-semibold">{post.title}</h2>
+          </Link>
+          <h2 className="mt-2 text-sm font-light">{post.body}</h2>
+        </div>
+
+        {/* Image */}
+        <img src={post.image} alt="" className="w-full" />
+
+        {/* Footer */}
+        <div className="flex space-x-4 text-gray-400">
+          <div className="postButtons">
+            <ChatBubbleBottomCenterIcon className="h-6 w-6" />
+            <p className="">{post.comment.length} Comments</p>
+          </div>
+          <div className="postButtons">
+            <GiftIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Award</p>
+          </div>
+          <div className="postButtons">
+            <ShareIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Share</p>
+          </div>
+          <div className="postButtons">
+            <BookmarkIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Save</p>
+          </div>
+          <div className="postButtons">
+            <EllipsisHorizontalIcon className="h-6 w-6" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Post;
+
+```
+
+## Implement Top Communitites:
+
+### Create a new query getSubredditListLimit in stepzen/postgresql/index.graphql:
+
+```
+ getSubredditListLimit(limit: Int!): [Subreddit]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT  * FROM "subreddit" ORDER BY "created_at" DESC LIMIT $1
+      """
+      configuration: "postgresql_config"
+    )
+```
+
+### Add a the new query in graphql/queries.tsx:
+
+```
+export const GET_SUBREDDITS_WITH_LIMIT = gql`
+  query GetSubredditsByLimit($limit: Int!) {
+    getSubredditListLimit(limit: $limit) {
+      created_at
+      id
+      topic
+    }
+  }
+`;
+```
+
+### Update app/page.tsx:
+
+```
+import React from "react";
+import Feed from "./Feed";
+import PostBox from "./PostBox";
+import TopCommunities from "./TopCommunities";
+type Props = {};
+
+async function Home({}: Props) {
+  return (
+    <div className="my-7 mx-auto max-w-5xl">
+      <PostBox />
+      <div className="flex">
+        <Feed />
+        <div className="flex-col sticky top-36 mx-5 mt-5 hidden h-fit min-w-[300px] rounded-md border border-gray-300 bg-white lg:inline-flex">
+          <p className="text-md mb-1 p-4 pb-3 font-bold">Top Communities</p>
+
+          {/* List subreddits */}
+          <TopCommunities />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Home;
+
+
+```
+
+### Create app/TopCommunities.tsx:
+
+```
+"use client";
+import { useQuery } from "@apollo/client";
+import React from "react";
+import { GET_SUBREDDITS_WITH_LIMIT } from "../graphql/queries";
+import SubredditRow from "./SubredditRow";
+
+type Props = {};
+
+function TopCommunities({}: Props) {
+  const { data } = useQuery(GET_SUBREDDITS_WITH_LIMIT, {
+    variables: {
+      limit: 10,
+    },
+  });
+  console.log(data);
+  const subreddits: Subreddit[] = data?.getSubredditListLimit;
+  return (
+    <div>
+      {subreddits?.map((subreddit, index) => (
+        <SubredditRow key={subreddit.id} topic={subreddit.topic} index={index}/>
+      ))}
+    </div>
+  );
+}
+
+export default TopCommunities;
+
+```
+
+### Create app/SubredditRow.tsx:
+
+```
+import { ChevronUpIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import Avatar from "./Avatar";
+
+type Props = {
+  topic: string;
+  index: number;
+};
+
+function SubredditRow({ index, topic }: Props) {
+  return (
+    <div className="flex items-center space-x-2 border-t bg-white px-4 py-2 last:rounded-b">
+      <p>{index + 1}</p>
+      <ChevronUpIcon className="h-4 w-4 flex-shrink-0 text-green-400" />
+      {/* @ts-expect-error Server Component
+       <Avatar seed={`/subreddit/${topic}`} /> */}
+      <Image
+        src={`https://avatars.dicebear.com/api/open-peeps/${
+          topic || "placeholder"
+        }.svg`}
+        alt="Avatar Image"
+        width={50}
+        height={50}
+        className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+      />
+      <p className="flex-1 truncate">r/{topic}</p>
+      <Link href={`/subreddit/${topic}`}>
+        <div className="cursor-pointer rounded-full bg-blue-500 px-3 text-white">
+          View
+        </div>
+      </Link>
+    </div>
+  );
+}
+
+export default SubredditRow;
+
+```
+
+

@@ -99,7 +99,33 @@ type Query {
     @dbquery(
       type: "postgresql"
       schema: "public"
-      table: "post"
+      # table: "post"
+      query: """
+      SELECT * FROM "post"
+      ORDER BY "post"."created_at" DESC
+      """
+      configuration: "postgresql_config"
+    )
+  getPostListByTopic(topic: String!): [Post]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT *, "post".id FROM "post"
+      JOIN "subreddit" ON "subreddit"."id" = "post"."subreddit_id"
+      WHERE "subreddit"."topic" = $1
+      ORDER BY "post"."created_at" DESC
+      """
+      configuration: "postgresql_config"
+    )
+  getPostListByPostId(post_id: ID!): Post
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT * FROM "post"
+      WHERE "post"."id" = $1
+      """
       configuration: "postgresql_config"
     )
   getPostPaginatedList(first: Int, after: Int): [Post]
@@ -162,6 +188,15 @@ type Query {
       """
       configuration: "postgresql_config"
     )
+  getSubredditListLimit(limit: Int!): [Subreddit]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT  * FROM "subreddit" ORDER BY "created_at" DESC LIMIT $1
+      """
+      configuration: "postgresql_config"
+    )
   getSubredditPaginatedList(first: Int, after: Int): [Subreddit]
     @dbquery(
       type: "postgresql"
@@ -210,6 +245,15 @@ type Query {
       schema: "public"
       query: """
       SELECT "created_at", "id", "post_id", "upvote", "username" FROM "vote" WHERE "post_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getVotesByPostId(post_id: ID!): [Vote]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      query: """
+      SELECT * FROM "vote" WHERE "post_id" = $1 ORDER BY "created_at" DESC
       """
       configuration: "postgresql_config"
     )

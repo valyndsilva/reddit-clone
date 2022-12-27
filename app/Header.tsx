@@ -17,35 +17,40 @@ import {
 import Dropdown from "./Dropdown";
 import { unstable_getServerSession } from "next-auth/next";
 import LoginBtn from "./LoginBtn";
+import Link from "next/link";
 
 type Props = {};
 
 export default async function Header({}: Props) {
   // const loggedIn = false;
   const session = await unstable_getServerSession();
-  console.log(session);
-  console.log("Header here!");
+  // console.log(session);
+  // console.log("Header here!");
 
   return (
     <>
       <div className="sticky top-0 z-50 flex bg-white px-4 py-2">
         <div className="relative hidden lg:inline-flex flex-shrink-0 cursor-pointer">
-          <Image
-            src="/logo.png"
-            alt="reddit logo"
-            width={96}
-            height={40}
-            className="object-contain"
-          />
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="reddit logo"
+              width={96}
+              height={40}
+              className="object-contain"
+            />
+          </Link>
         </div>
         <div className="relative flex lg:hidden items-center flex-shrink-0 cursor-pointer">
-          <Image
-            src="/reddit-icon.png"
-            alt="reddit logo"
-            className="object-contain"
-            width={32}
-            height={32}
-          />
+          <Link href="/">
+            <Image
+              src="/reddit-icon.png"
+              alt="reddit logo"
+              className="object-contain"
+              width={32}
+              height={32}
+            />
+          </Link>
         </div>
         <div className="mx-7 flex items-center xl:min-w-[300px]">
           <HomeIcon className="h-5 w-5" />

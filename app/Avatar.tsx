@@ -9,6 +9,9 @@ type Props = {
 
 async function Avatar({ seed, large }: Props) {
   const session = await unstable_getServerSession();
+  console.log(session);
+  console.log(seed);
+  
   return (
     <Image
       src={`https://avatars.dicebear.com/api/open-peeps/${

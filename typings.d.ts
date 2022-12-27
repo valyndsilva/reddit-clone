@@ -29,6 +29,6 @@ type Post = {
   title: string;
   username: string;
   vote: Vote[];
-  comment: Comment[];
+  comment: Comments[];
   subreddit: Subreddit;
 };

@@ -7,7 +7,8 @@ const headers = {
 
 const client = new ApolloClient({
   // uri: process.env.STEPZEN_API_URL,
-  uri: "https://tomsriver.stepzen.net/api/reddit-clone/__graphql",
+  // uri: "https://tomsriver.stepzen.net/api/reddit-clone/__graphql",
+  uri: "http://localhost:5001/api/reddit-clone",
   headers,
   cache: new InMemoryCache(),
 });
