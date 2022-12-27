@@ -4,7 +4,7 @@ import PostBox from "./PostBox";
 import TopCommunities from "./TopCommunities";
 type Props = {};
 
-async function Home({}: Props) {
+function Home({}: Props) {
   return (
     <div className="my-7 mx-auto max-w-5xl">
       <PostBox />
