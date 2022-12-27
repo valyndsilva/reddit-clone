@@ -29,7 +29,7 @@ export default function Dropdown() {
       <div>
         {/* {loggedIn ? ( */}
         {session ? (
-          <Menu.Button className="inline-flex w-full space-x-4 items-center justify-center rounded-md border hover:border-gray-300 hover:shadow-sm hover:bg-gray-50 bg-white px-4 py-2 text-sm font-medium text-gray-700   ">
+          <Menu.Button className="inline-flex w-full space-x-4 items-center justify-center rounded-md border hover:border-gray-300 hover:shadow-sm hover:bg-gray-50 bg-white dark:bg-gray-600 dark:text-white px-4 py-2 text-sm font-medium text-gray-700   ">
             <div className="relative flex-shrink-0 ">
               <Image
                 src="/reddit-black-icon.png"
@@ -40,9 +40,7 @@ export default function Dropdown() {
               />
             </div>
             <div className="flex-1 text-xs text-left ">
-              <p className="truncate">
-                {session.user?.name}
-              </p>
+              <p className="truncate">{session.user?.name}</p>
               <p className="text-gray-400">1 Karma</p>
             </div>
             <ChevronDownIcon
@@ -51,7 +49,7 @@ export default function Dropdown() {
             />
           </Menu.Button>
         ) : (
-          <Menu.Button className="inline-flex w-full justify-center rounded-md border hover:border-gray-300 hover:shadow-sm hover:bg-gray-50 bg-white px-4 py-2 text-sm font-medium text-gray-700   ">
+          <Menu.Button className="inline-flex w-full justify-center rounded-md border hover:border-gray-300 hover:shadow-sm hover:bg-gray-50 bg-white dark:bg-gray-600 dark:text-white px-4 py-2 text-sm font-medium text-gray-700   ">
             <div className="relative flex-shrink-0 ">
               <Image
                 src="/reddit-black-icon.png"
@@ -78,7 +76,7 @@ export default function Dropdown() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-top-right  rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 ">
+        <Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-top-right  rounded-md bg-white dark:bg-gray-600 dark:text-white shadow-lg ring-1 ring-black ring-opacity-5 ">
           <div className="py-1">
             {/* {loggedIn ? ( */}
             {session ? (
@@ -90,7 +88,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white "
                       )}
                     >
                       {/* <MoonIcon className="w-5 h-5" />{" "}
@@ -105,7 +103,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white "
                       )}
                     >
                       <SparklesIcon className="w-5 h-5" />{" "}
@@ -119,7 +117,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white "
                       )}
                     >
                       <UserGroupIcon className="w-5 h-5" />{" "}
@@ -133,7 +131,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center lg:hidden"
+                        "px-4 py-2 text-sm flex items-center dark:text-white  lg:hidden"
                       )}
                     >
                       <MegaphoneIcon className="w-5 h-5" />{" "}
@@ -147,7 +145,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white "
                       )}
                     >
                       <QuestionMarkCircleIcon className="w-5 h-5" />{" "}
@@ -161,7 +159,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
                       )}
                     >
                       <InformationCircleIcon className="w-5 h-5" />{" "}
@@ -175,7 +173,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
                       )}
                     >
                       <DocumentTextIcon className="w-5 h-5" />{" "}
@@ -189,7 +187,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
                       )}
                     >
                       <MegaphoneIcon className="w-5 h-5" />{" "}
@@ -207,7 +205,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
                       )}
                     >
                       {/* <MoonIcon className="w-5 h-5" />
@@ -222,7 +220,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
                       )}
                     >
                       <QuestionMarkCircleIcon className="w-5 h-5" />{" "}
@@ -236,7 +234,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
                       )}
                     >
                       <InformationCircleIcon className="w-5 h-5" />{" "}
@@ -250,7 +248,7 @@ export default function Dropdown() {
                       href="#"
                       className={classNames(
                         active ? "bg-redditBlue text-white" : "text-gray-700",
-                        "px-4 py-2 text-sm flex items-center"
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
                       )}
                     >
                       <DocumentTextIcon className="w-5 h-5" />{" "}
@@ -273,13 +271,15 @@ export default function Dropdown() {
                     {" "}
                     {session ? (
                       <div onClick={() => signOut()} className="flex">
-                        <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                        <span className=" pl-2">Logout</span>
+                        <ArrowRightOnRectangleIcon className="w-5 h-5 dark:text-white" />
+                        <span className=" pl-2 dark:text-white ">Logout</span>
                       </div>
                     ) : (
                       <div onClick={() => signIn()} className="flex">
-                        <ArrowLeftOnRectangleIcon className="w-5 h-5" />
-                        <span className=" pl-2">Login / Sign Up</span>
+                        <ArrowLeftOnRectangleIcon className="w-5 h-5 dark:text-white" />
+                        <span className=" pl-2 dark:text-white ">
+                          Login / Sign Up
+                        </span>
                       </div>
                     )}
                   </a>

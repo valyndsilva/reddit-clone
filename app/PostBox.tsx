@@ -9,7 +9,7 @@ type Props = {
 function PostBox({ subreddit }: Props) {
   return (
     <div className="sticky top-16 z-40">
-      <div className="flex space-x-3 bg-white border border-gray-300 rounded-md p-2">
+      <div className="flex space-x-3 bg-white dark:bg-slate-700 border border-gray-300 rounded-md p-2">
         {/* @ts-expect-error Server Component */}
         <Avatar />
         <Form subreddit={subreddit} />

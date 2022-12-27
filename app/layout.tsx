@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
     <html>
       <head />
-      <body className="h-screen overflow-y-scroll bg-slate-200">
+      <body className="h-screen overflow-y-scroll bg-slate-200 dark:bg-slate-800">
         <Providers>
           {/* @ts-expect-error Server Component */}
           <Header />

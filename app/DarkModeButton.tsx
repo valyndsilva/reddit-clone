@@ -14,14 +14,14 @@ function DarkModeButton({}: Props) {
       return (
         <div className="flex" onClick={() => setTheme("light")}>
           {" "}
-          <SunIcon className="h-6 w-6 cursor-pointer " />
+          <SunIcon className="h-6 w-6 cursor-pointer dark:text-white" />
           <span className=" pl-2">Light Mode</span>
         </div>
       );
     } else {
       return (
         <div className="flex" onClick={() => setTheme("dark")}>
-          <MoonIcon className="h-5 w-5 cursor-pointer text-[#2a2a2a]" />
+          <MoonIcon className="h-5 w-5 cursor-pointer  dark:text-white" />
           <span className=" pl-2">Dark Mode</span>
         </div>
       );

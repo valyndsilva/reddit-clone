@@ -68,7 +68,7 @@ function page({ params }: Props) {
     toast.success("Comment posted successfully!", {
       id: notification,
     });
-    console.log("Form data:", data);
+    // console.log("Form data:", data);
   };
 
   return (
@@ -76,7 +76,7 @@ function page({ params }: Props) {
       <Post post={post} />
       {post && (
         <>
-          <div className="-mt-1 rounded-b-md border-t-0 border-gray-300 bg-white p-5 pl-16">
+          <div className="-mt-1 rounded-b-md border-t-0 border-gray-300 bg-white dark:bg-gray-700 p-5 pl-16">
             <p className="text-sm">
               {" "}
               Comment as{" "}
@@ -90,7 +90,7 @@ function page({ params }: Props) {
               <textarea
                 {...register("comment")}
                 disabled={!session}
-                className="h-24 rounded-md border border-gray-200 p-2 pl-4 outline-none disabled:bg-gray-50"
+                className="h-24 rounded-md border border-gray-200 p-2 pl-4 outline-none disabled:bg-gray-50 dark:bg-blue-50"
                 placeholder={
                   session
                     ? "What are your thoughts?"
@@ -98,7 +98,7 @@ function page({ params }: Props) {
                 }
               />
               <button
-              disabled={!session}
+                disabled={!session}
                 type="submit"
                 className="rounded-full bg-red-500 p-3 font-semibold text-white disabled:bg-gray-200"
               >
@@ -107,14 +107,14 @@ function page({ params }: Props) {
             </form>
           </div>
 
-          <div className="-my-5 rounded-b-md border-t-0 border-gray-300 bg-white py-5 px-10">
+          <div className="-my-5 rounded-b-md border-t-0 border-gray-300 bg-white dark:bg-gray-700 py-5 px-10">
             <hr className="py-2" />
             {post?.comment.map((comment) => (
               <div
                 key={comment.id}
                 className="relative flex items-center space-x-2 space-y-5"
               >
-                <hr className="absolute top-10 h-16 border left-7 z-0 " />
+                <hr className="absolute top-10 h-14 border left-7 z-0 " />
                 <div className="z-50">
                   {/* @ts-expect-error Server Component
               <Avatar seed={comment.username} /> */}

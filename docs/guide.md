@@ -5465,4 +5465,1214 @@ export default SubredditRow;
 
 ```
 
+## Update Components with Dark Theme utility classes:
 
+### In app/layout.tsx:
+
+```
+import "../styles/globals.css";
+import Header from "./Header";
+import Providers from "./Providers";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html>
+      <head />
+      <body className="h-screen overflow-y-scroll bg-slate-200 dark:bg-slate-800">
+        <Providers>
+          {/* @ts-expect-error Server Component */}
+          <Header />
+          {children}
+        </Providers>
+      </body>
+    </html>
+  );
+}
+
+```
+
+### In app/Header.tsx:
+
+```
+import Image from "next/image";
+import React from "react";
+import {
+  HomeIcon,
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/solid";
+import {
+  VideoCameraIcon,
+  GlobeEuropeAfricaIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  BellIcon,
+  PlusIcon,
+  MegaphoneIcon,
+  ArrowTopRightOnSquareIcon,
+} from "@heroicons/react/24/outline";
+import Dropdown from "./Dropdown";
+import { unstable_getServerSession } from "next-auth/next";
+import LoginBtn from "./LoginBtn";
+import Link from "next/link";
+
+type Props = {};
+
+export default async function Header({}: Props) {
+  // const loggedIn = false;
+  const session = await unstable_getServerSession();
+  // console.log(session);
+  // console.log("Header here!");
+
+  return (
+    <>
+      <div className="sticky top-0 z-50 flex bg-white dark:bg-slate-700 px-4 py-2 items-center">
+        <div className="relative hidden lg:inline-flex flex-shrink-0 cursor-pointer">
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="reddit logo"
+              width={96}
+              height={40}
+              className="object-contain"
+            />
+          </Link>
+        </div>
+        <div className="relative flex lg:hidden items-center flex-shrink-0 cursor-pointer">
+          <Link href="/">
+            <Image
+              src="/reddit-icon.png"
+              alt="reddit logo"
+              className="object-contain"
+              width={32}
+              height={32}
+            />
+          </Link>
+        </div>
+        <div className="mx-7 flex items-center xl:min-w-[300px]">
+          <HomeIcon className="h-5 w-5" />
+          <p className="flex-1 ml-2 hidden lg:inline-flex">Home</p>
+          <ChevronDownIcon className="h-5 w-4 ml-1 " />
+        </div>
+        <form className="flex flex-1 items-center space-x-2 rounded-full border border-gray-200 bg-gray-100 focus:bg-white px-3 py-1 mr-2">
+          <MagnifyingGlassIcon className="h-5 w-h-6 w-6 text-gray-400" />
+          <input
+            className="flex-1 bg-transparent outline-none"
+            type="text"
+            placeholder="Search Reddit"
+          />
+          <button type="submit" hidden />
+        </form>
+
+        {/* {loggedIn ? ( */}
+        {session ? (
+          <div>
+            <div className="flex items-center space-x-2 text-gray-800">
+              <div className=" hidden items-center space-x-2 md:inline-flex">
+                <ArrowTopRightOnSquareIcon className="icon" />
+                <VideoCameraIcon className="icon" />
+                <GlobeEuropeAfricaIcon className="icon" />
+                <ChatBubbleOvalLeftEllipsisIcon className="icon" />
+                <BellIcon className="icon" />
+                <PlusIcon className="icon" />
+                <button className="bg-gray-100 dark:bg-gray-600 rounded-full items-center py-1 px-2 hidden lg:inline-flex">
+                  <MegaphoneIcon className="icon" />{" "}
+                  <span className="text-sm dark:text-white">Advertise</span>
+                </button>
+              </div>
+
+              <div className="ml-5 flex items-center">
+                <Dropdown />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="cursor-pointer items-center space-x-2 border-border-gray-100 flex ">
+            {/* <p className="bg-reddit text-white text-sm rounded-full py-2 px-3 hidden md:inline-flex">
+            Log In
+          </p> */}
+            <LoginBtn />
+            <Dropdown />
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+```
+
+### In app/DropDown.tsx:
+
+```
+"use client";
+import { Fragment } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import Image from "next/image";
+import {
+  ArrowLeftOnRectangleIcon,
+  ArrowRightOnRectangleIcon,
+  DocumentTextIcon,
+  InformationCircleIcon,
+  MegaphoneIcon,
+  MoonIcon,
+  QuestionMarkCircleIcon,
+  SparklesIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
+import DarkModeButton from "./DarkModeButton";
+import { useSession, signIn, signOut } from "next-auth/react";
+
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export default function Dropdown() {
+  // const loggedIn = true;
+  const { data: session } = useSession();
+  return (
+    <Menu as="div" className="relative inline-block text-left">
+      <div>
+        {/* {loggedIn ? ( */}
+        {session ? (
+          <Menu.Button className="inline-flex w-full space-x-4 items-center justify-center rounded-md border hover:border-gray-300 hover:shadow-sm hover:bg-gray-50 bg-white dark:bg-gray-600 dark:text-white px-4 py-2 text-sm font-medium text-gray-700   ">
+            <div className="relative flex-shrink-0 ">
+              <Image
+                src="/reddit-black-icon.png"
+                alt="logo"
+                className="object-contain"
+                width={20}
+                height={20}
+              />
+            </div>
+            <div className="flex-1 text-xs text-left ">
+              <p className="truncate">{session.user?.name}</p>
+              <p className="text-gray-400">1 Karma</p>
+            </div>
+            <ChevronDownIcon
+              className="-mr-1 ml-2 h-5 w-5 flex-shrink-0 text-gray-400"
+              aria-hidden="true"
+            />
+          </Menu.Button>
+        ) : (
+          <Menu.Button className="inline-flex w-full justify-center rounded-md border hover:border-gray-300 hover:shadow-sm hover:bg-gray-50 bg-white dark:bg-gray-600 dark:text-white px-4 py-2 text-sm font-medium text-gray-700   ">
+            <div className="relative flex-shrink-0 ">
+              <Image
+                src="/reddit-black-icon.png"
+                alt="logo"
+                className="object-contain"
+                width={20}
+                height={20}
+              />
+            </div>
+            <ChevronDownIcon
+              className="-mr-1 ml-2 h-5 w-5"
+              aria-hidden="true"
+            />
+          </Menu.Button>
+        )}
+      </div>
+
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="transform opacity-0 scale-95"
+        enterTo="transform opacity-100 scale-100"
+        leave="transition ease-in duration-75"
+        leaveFrom="transform opacity-100 scale-100"
+        leaveTo="transform opacity-0 scale-95"
+      >
+        <Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-top-right  rounded-md bg-white dark:bg-gray-600 dark:text-white shadow-lg ring-1 ring-black ring-opacity-5 ">
+          <div className="py-1">
+            {/* {loggedIn ? ( */}
+            {session ? (
+              <>
+                {" "}
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white "
+                      )}
+                    >
+                      {/* <MoonIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Dark Mode</span> */}
+                      <DarkModeButton />
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white "
+                      )}
+                    >
+                      <SparklesIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Premium</span>
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white "
+                      )}
+                    >
+                      <UserGroupIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Create a Community</span>
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white  lg:hidden"
+                      )}
+                    >
+                      <MegaphoneIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Advertise on Reddit</span>
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white "
+                      )}
+                    >
+                      <QuestionMarkCircleIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Help Center</span>
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
+                      )}
+                    >
+                      <InformationCircleIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">More</span>
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
+                      )}
+                    >
+                      <DocumentTextIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Terms & Policies</span>
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
+                      )}
+                    >
+                      <MegaphoneIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Advertise on Reddit</span>
+                    </a>
+                  )}
+                </Menu.Item>
+              </>
+            ) : (
+              <>
+                {" "}
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
+                      )}
+                    >
+                      {/* <MoonIcon className="w-5 h-5" />
+                      <span className=" pl-2">Dark Mode</span> */}
+                      <DarkModeButton />
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
+                      )}
+                    >
+                      <QuestionMarkCircleIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Help Center</span>
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
+                      )}
+                    >
+                      <InformationCircleIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">More</span>
+                    </a>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href="#"
+                      className={classNames(
+                        active ? "bg-redditBlue text-white" : "text-gray-700",
+                        "px-4 py-2 text-sm flex items-center dark:text-white"
+                      )}
+                    >
+                      <DocumentTextIcon className="w-5 h-5" />{" "}
+                      <span className=" pl-2">Terms & Policies</span>
+                    </a>
+                  )}
+                </Menu.Item>
+              </>
+            )}
+            <div className="py-1 border-t border-[1px] border-gray-100">
+              <Menu.Item>
+                {({ active }) => (
+                  <a
+                    href="#"
+                    className={classNames(
+                      active ? "bg-redditBlue text-white" : "text-gray-700",
+                      "px-4 py-2 text-sm flex items-center"
+                    )}
+                  >
+                    {" "}
+                    {session ? (
+                      <div onClick={() => signOut()} className="flex">
+                        <ArrowRightOnRectangleIcon className="w-5 h-5 dark:text-white" />
+                        <span className=" pl-2 dark:text-white ">Logout</span>
+                      </div>
+                    ) : (
+                      <div onClick={() => signIn()} className="flex">
+                        <ArrowLeftOnRectangleIcon className="w-5 h-5 dark:text-white" />
+                        <span className=" pl-2 dark:text-white ">
+                          Login / Sign Up
+                        </span>
+                      </div>
+                    )}
+                  </a>
+                )}
+              </Menu.Item>
+            </div>
+          </div>
+        </Menu.Items>
+      </Transition>
+    </Menu>
+  );
+}
+
+```
+
+### In app/DarkModeButton.tsx:
+
+```
+"use client";
+import React from "react";
+import { useTheme } from "next-themes";
+import { SunIcon, MoonIcon } from "@heroicons/react/24/outline";
+type Props = {};
+
+function DarkModeButton({}: Props) {
+  const { systemTheme, theme, setTheme } = useTheme();
+
+  const renderThemeChanger = () => {
+    const currentTheme = theme === "system" ? systemTheme : theme;
+
+    if (currentTheme === "dark") {
+      return (
+        <div className="flex" onClick={() => setTheme("light")}>
+          {" "}
+          <SunIcon className="h-6 w-6 cursor-pointer dark:text-white" />
+          <span className=" pl-2">Light Mode</span>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex" onClick={() => setTheme("dark")}>
+          <MoonIcon className="h-5 w-5 cursor-pointer  dark:text-white" />
+          <span className=" pl-2">Dark Mode</span>
+        </div>
+      );
+    }
+  };
+
+  return <div>{renderThemeChanger()}</div>;
+}
+
+export default DarkModeButton;
+
+```
+
+### In app/page.tsx:
+
+```
+import React from "react";
+import Feed from "./Feed";
+import PostBox from "./PostBox";
+import TopCommunities from "./TopCommunities";
+type Props = {};
+
+async function Home({}: Props) {
+  return (
+    <div className="my-7 mx-auto max-w-5xl">
+      <PostBox />
+      <div className="flex">
+        <Feed />
+        <div className="flex-col sticky top-36 mx-5 mt-5 hidden h-fit min-w-[300px] rounded-md border border-gray-300 bg-white dark:bg-gray-700 lg:inline-flex">
+          <p className="text-md mb-1 p-4 pb-3 font-bold">Top Communities</p>
+
+          {/* List subreddits */}
+          <TopCommunities />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Home;
+
+```
+
+### In app/SubredditRow.tsx:
+
+```
+import { ChevronUpIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import Avatar from "./Avatar";
+
+type Props = {
+  topic: string;
+  index: number;
+};
+
+function SubredditRow({ index, topic }: Props) {
+  return (
+    <div className="flex items-center space-x-2 border-t bg-white dark:bg-gray-700 px-4 py-2 last:rounded-b">
+      <p>{index + 1}</p>
+      <ChevronUpIcon className="h-4 w-4 flex-shrink-0 text-green-400" />
+      {/* @ts-expect-error Server Component
+       <Avatar seed={`/subreddit/${topic}`} /> */}
+      <Image
+        src={`https://avatars.dicebear.com/api/open-peeps/${
+          topic || "placeholder"
+        }.svg`}
+        alt="Avatar Image"
+        width={50}
+        height={50}
+        className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+      />
+      <p className="flex-1 truncate">r/{topic}</p>
+      <Link href={`/subreddit/${topic}`}>
+        <div className="cursor-pointer rounded-full bg-blue-500 px-3 text-white">
+          View
+        </div>
+      </Link>
+    </div>
+  );
+}
+
+export default SubredditRow;
+
+```
+
+### In app/Post.tsx:
+
+```
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  BookmarkIcon,
+  ChatBubbleBottomCenterIcon,
+  EllipsisHorizontalIcon,
+  GiftIcon,
+  ShareIcon,
+} from "@heroicons/react/24/outline";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import Avatar from "./Avatar";
+import Time from "./Time";
+import { Jelly } from "@uiball/loaders";
+import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
+import { GET_ALL_VOTES_BY_POST_ID } from "../graphql/queries";
+import { useMutation, useQuery } from "@apollo/client";
+import { ADD_VOTE } from "../graphql/mutations";
+
+type Props = {
+  post: Post;
+};
+
+function Post({ post }: Props) {
+  // console.log(post.subreddit.topic);
+  // console.log(post);
+
+  const { data: session } = useSession();
+  // console.log(session);
+
+  const [vote, setVote] = useState<boolean | undefined>();
+
+  const { data, error } = useQuery(GET_ALL_VOTES_BY_POST_ID, {
+    variables: {
+      post_id: post?.id,
+    },
+  });
+
+  // console.log("Data:", data);
+  // if (data) {
+  //   console.log("Data:", data);
+  // } else {
+  //   console.log(error);
+  // }
+
+  const [addVote] = useMutation(ADD_VOTE, {
+    refetchQueries: [GET_ALL_VOTES_BY_POST_ID, "getVotesByPostId"],
+  });
+
+  // isUpvote: true (voted Up), false(voted Down), undefined(not voted)
+  const upVote = async (isUpvote: boolean) => {
+    if (!session) {
+      toast("You'll need to sign in to Vote!");
+      return;
+    }
+    // If you already voted and you are trying to upvote return null
+    if (vote && isUpvote) return;
+    // If you have not voted and you are trying to upvote or downvote multiple times return null
+    if (vote === false && !isUpvote) return;
+
+    console.log("Voting...", isUpvote);
+
+    const {
+      data: { insertVote: newVote },
+    } = await addVote({
+      variables: {
+        username: session.user?.name,
+        post_id: post.id,
+        created_at: new Date(),
+        upvote: isUpvote,
+      },
+    });
+    console.log("Voted successfully", data);
+  };
+
+  const displayVotes = (data: any) => {
+    const votes: Vote[] = data?.getVotesByPostId;
+    const displayNumber = votes?.reduce(
+      (total, vote) => (vote.upvote ? (total += 1) : (total -= 1)),
+      0
+    );
+    if (votes?.length === 0) return 0;
+    if (displayNumber === 0) {
+      return votes[0]?.upvote ? 1 : -1;
+    }
+    return displayNumber;
+  };
+
+  useEffect(() => {
+    const votes: Vote[] = data?.getVotesByPostId;
+    // console.log("Votes:", votes);
+
+    // Latest vote (As we sorted by newly created first in SQL query with ORDER BY "created_at"  DESC)
+    // Note: You could improve this by moving it to the original Query
+    const vote = votes?.find(
+      (vote) => vote.username === session?.user?.name
+    )?.upvote;
+    // console.log("isUpvote:", vote);
+
+    setVote(vote);
+  }, [data]);
+
+  if (!post)
+    return (
+      <div className="flex w-full items-center p-10 justify-center text-xl">
+        <Jelly size={50} color="#FF4501" />
+      </div>
+    );
+
+  return (
+    <div className="flex cursor-pointer rounded-md border border-gray-300 bg-white dark:bg-gray-700 shadow-sm hover:border hover:border-gray-600">
+      {/* Votes */}
+      <div className="flex flex-col items-center justify-start space-y-1 rounded-l-md bg-gray-50 dark:bg-gray-800 p-4 text-gray-400">
+        <ArrowUpIcon
+          onClick={() => upVote(true)}
+          className={`voteButtons hover:text-blue-400 ${
+            vote && "text-blue-400"
+          }`}
+        />
+        <p className="text-xs font-bold text-black dark:text-gray-50">
+          {displayVotes(data)}
+        </p>
+        <ArrowDownIcon
+          onClick={() => upVote(false)}
+          className={`voteButtons hover:text-red-400  ${
+            vote === false && "text-red-400"
+          }`}
+        />
+      </div>
+
+      <div className="p-3 pb-1">
+        {/* Header */}
+        <div className="flex items-center space-x-2">
+          {/* @ts-expect-error Server Component
+          <Avatar seed={post.subreddit.topic} /> */}
+          <Image
+            src={`https://avatars.dicebear.com/api/open-peeps/${
+              post.subreddit.topic || post.username || "placeholder"
+            }.svg`}
+            alt="Avatar Image"
+            width={50}
+            height={50}
+            className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+          />
+          <p className="text-xs text-gray-400">
+            <Link href={`/subreddit/${post.subreddit.topic}`}>
+              <span className="font-bold text-black dark:text-gray-300 hover:text-blue-400 hover:underline">
+                r/{post.subreddit.topic}
+              </span>{" "}
+            </Link>
+            · Posted by u/{post.username} <Time date={post.created_at} />
+          </p>
+        </div>
+
+        {/* Body */}
+        <div className="py-4">
+          <Link href={`/post/${post.id}`}>
+            {" "}
+            <h2 className="text-xl font-semibold dark:text-gray-300">
+              {post.title}
+            </h2>
+          </Link>
+          <h2 className="mt-2 text-sm font-light dark:text-gray-300">
+            {post.body}
+          </h2>
+        </div>
+
+        {/* Image */}
+        <img src={post.image} alt="" className="w-full" />
+
+        {/* Footer */}
+        <div className="flex space-x-4 text-gray-400">
+          <div className="postButtons">
+            <ChatBubbleBottomCenterIcon className="h-6 w-6" />
+            <p className="">{post.comment.length} Comments</p>
+          </div>
+          <div className="postButtons">
+            <GiftIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Award</p>
+          </div>
+          <div className="postButtons">
+            <ShareIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Share</p>
+          </div>
+          <div className="postButtons">
+            <BookmarkIcon className="h-6 w-6" />
+            <p className="hidden sm:inline">Save</p>
+          </div>
+          <div className="postButtons">
+            <EllipsisHorizontalIcon className="h-6 w-6" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Post;
+
+```
+
+### In app/PostBox.tsx:
+
+```
+import React from "react";
+import Avatar from "./Avatar";
+import Form from "./Form";
+
+type Props = {
+  subreddit?: string;
+};
+
+function PostBox({ subreddit }: Props) {
+  return (
+    <div className="sticky top-16 z-40">
+      <div className="flex space-x-3 bg-white dark:bg-slate-700 border border-gray-300 rounded-md p-2">
+        {/* @ts-expect-error Server Component */}
+        <Avatar />
+        <Form subreddit={subreddit} />
+      </div>
+    </div>
+  );
+}
+
+export default PostBox;
+
+```
+
+### In app/Form.tsx:
+
+```
+"use client";
+import React, { useState } from "react";
+import { PhotoIcon, LinkIcon } from "@heroicons/react/24/outline";
+import { useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
+import { useMutation } from "@apollo/client";
+import { ADD_POST, ADD_SUBREDDIT } from "../graphql/mutations";
+import client from "../apollo-client";
+import { GET_ALL_POSTS, GET_SUBREDDIT_BY_TOPIC } from "../graphql/queries";
+import toast from "react-hot-toast";
+
+type FormData = {
+  postTitle: string;
+  postBody: string;
+  postImage: string;
+  subreddit: string;
+};
+
+type Props = {
+  subreddit?: string;
+};
+
+function Form({ subreddit }: Props) {
+  console.log("Subreddit:", subreddit);
+  const { data: session } = useSession();
+  const [imageBoxOpen, setImageBoxOpen] = useState<boolean>(false);
+
+  // const [addPost] = useMutation(ADD_POST);
+  const [addPost] = useMutation(ADD_POST, {
+    refetchQueries: [GET_ALL_POSTS, "getPostList"],
+  });
+
+  const [addSubreddit] = useMutation(ADD_SUBREDDIT);
+
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  console.log(watch("postTitle")); // watch input value by passing the name of it
+
+  const onSubmit = handleSubmit(async (formData) => {
+    console.log(formData);
+    const notification = toast.loading("Creating a new post...");
+
+    try {
+      // Query for the subreddit topic
+      const {
+        data: { getSubredditListByTopic },
+      } = await client.query({
+        query: GET_SUBREDDIT_BY_TOPIC,
+        variables: {
+          topic: subreddit || formData.subreddit,
+        },
+      });
+
+      // Check if subreddit exists
+      const subredditExists = getSubredditListByTopic.length > 0;
+      if (!subredditExists) {
+        // Create a subreddit
+        console.log("Subreddit is new! -> Creating a new Subreddit!");
+
+        const {
+          data: { insertSubreddit: newSubreddit },
+        } = await addSubreddit({
+          variables: { topic: formData.subreddit },
+        });
+        console.log("Creating a post...", formData);
+        // To avoid a bug if postImage is undefined cast to empty string to fix bug
+        const image = formData.postImage || "";
+
+        const {
+          data: { insertPost: newPost },
+        } = await addPost({
+          variables: {
+            body: formData.postBody,
+            image: image,
+            subreddit_id: newSubreddit.id,
+            title: formData.postTitle,
+            username: session?.user?.name,
+          },
+        });
+
+        console.log("New post added:", newPost);
+      } else {
+        //use existing subreddit
+        console.log("Using existing subreddit!");
+        console.log(getSubredditListByTopic);
+        const image = formData.postImage || "";
+
+        const {
+          data: { insertPost: newPost },
+        } = await addPost({
+          variables: {
+            body: formData.postBody,
+            image: image,
+            subreddit_id: getSubredditListByTopic[0].id,
+            title: formData.postTitle,
+            username: session?.user?.name,
+          },
+        });
+        console.log("New post added:", newPost);
+      }
+      //After post had been added!
+      setValue("postTitle", "");
+      setValue("postBody", "");
+      setValue("postImage", "");
+      setValue("subreddit", "");
+      toast.success("New Post Created!", { id: notification });
+    } catch (error) {
+      toast.error("Whopps something went wrong!", { id: notification });
+      console.log(error);
+    }
+  });
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col flex-1">
+      <div className="flex flex-1 space-x-3  items-center ">
+        <input
+          {...register("postTitle", { required: true })}
+          disabled={!session}
+          type="text"
+          placeholder={
+            session
+              ? subreddit
+                ? `Create a post in r/${subreddit}`
+                : "Create a post by entering a title"
+              : "Sign in to post"
+          }
+          className="flex-1 rounded-md bg-blue-50 dark:text-gray-800 p-2 pl-5 outline-none"
+        />
+        <PhotoIcon
+          className={`h-6 w-6 text-gray-300 cursor-pointer ${
+            imageBoxOpen && "text-blue-300"
+          }`}
+          onClick={() => setImageBoxOpen(!imageBoxOpen)}
+        />
+        <LinkIcon className={`h-6 w-6 text-gray-300 cursor-pointer`} />
+      </div>
+      {/* if postTitle active set to true */}
+      {!!watch("postTitle") && (
+        <div className="flex flex-col py-2">
+          <div className="flex items-center px-2">
+            <p className="min-w-[90px]">Body:</p>
+            <input
+              className="flex-1 m-2 bg-blue-50 dark:text-gray-800 p-2 outline-none"
+              {...register("postBody")}
+              type="text"
+              placeholder="Text (optional)"
+            />
+          </div>
+
+          {!subreddit && (
+            <div className="flex items-center px-2">
+              <p className="min-w-[90px]">Subreddit:</p>
+              <input
+                className=" m-2 flex-1 bg-blue-50 dark:text-gray-800 p-2 outline-none"
+                {...register("subreddit", { required: true })}
+                type="text"
+                placeholder="i.e nextjs"
+              />
+            </div>
+          )}
+
+          {imageBoxOpen && (
+            <div className="flex items-center px-2">
+              <p className="min-w-[90px]">Image URL:</p>
+              <input
+                className=" m-2 flex-1 bg-blue-50 dark:text-gray-800 p-2 outline-none"
+                {...register("postImage")}
+                type="text"
+                placeholder="Optional..."
+              />
+            </div>
+          )}
+          {/* Errors */}
+          {Object.keys(errors).length > 0 && (
+            <div className="space-y-2 p-2 text-red-500">
+              {errors.postTitle?.type === "required" && (
+                <p>A post title is required.</p>
+              )}
+              {errors.subreddit?.type === "required" && (
+                <p>A subreddit is required.</p>
+              )}
+            </div>
+          )}
+
+          {!!watch("postTitle") && (
+            <button
+              type="submit"
+              className="w-full rounded-full bg-blue-400 p-2 text-white"
+            >
+              Create Post
+            </button>
+          )}
+        </div>
+      )}
+    </form>
+  );
+}
+
+export default Form;
+
+```
+
+### In app/subreddit/[topic]/page.tsx:
+
+```
+import React from "react";
+import Avatar from "../../Avatar";
+import Feed from "../../Feed";
+import PostBox from "../../PostBox";
+
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+function Subreddit({ params }: Props) {
+  // E.g. `/subreddit/nextjs`
+  console.log("URL Params:", params);
+  const topic = params!.topic;
+  return (
+    <div className="h-24 bg-orange-600 p-8">
+      {/* <p>{params!.topic}</p> */}
+      <div className="-mx-8 mt-10 bg-white dark:bg-gray-700">
+        <div className="mx-auto flex max-w-5xl items-center space-x-4 pb-3">
+          <div className="-mt-5">
+            {/* @ts-expect-error Server Component */}
+            <Avatar seed={topic as string} large />
+          </div>
+          <div className="py-2">
+            <h1 className="text-3xl font-semibold">
+              Welcome to the r/{topic} subreddit{" "}
+            </h1>
+            <p className="text-sm text-gray-400">r/{topic}</p>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto max-w-5xl pb-10 mt-5">
+        <PostBox subreddit={topic as string} />
+        <Feed topic={topic as string} />
+      </div>
+    </div>
+  );
+}
+
+export default Subreddit;
+
+```
+
+### In app/post/[postId]/page.tsx:
+
+```
+"use client";
+import { useMutation, useQuery } from "@apollo/client";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import React from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { ADD_COMMENT } from "../../../graphql/mutations";
+import { GET_POST_BY_POST_ID } from "../../../graphql/queries";
+// import Avatar from "../../Avatar";
+import Post from "../../Post";
+import Time from "../../Time";
+
+type Props = { params?: { [key: string]: string | string[] | undefined } };
+
+type FormData = {
+  comment: string;
+};
+
+function page({ params }: Props) {
+  //   console.log("postID URL Params:", params);
+
+  const { data: session } = useSession();
+
+  // While doing pre-fecth post is undefined
+  const { data, error } = useQuery(GET_POST_BY_POST_ID, {
+    variables: { post_id: params!.postId },
+  });
+
+  const [addComment] = useMutation(ADD_COMMENT, {
+    refetchQueries: [GET_POST_BY_POST_ID, "getPostListByPostId"],
+  });
+
+//   if (data) {
+//     console.log("Data:", data);
+//   } else {
+//     console.log(error);
+//   }
+
+  // const posts: Post[] = data?.getPostList;
+  const post: Post = data?.getPostListByPostId;
+  //   console.log("Post:", post);
+
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  //   Alternative way to submit form using react hook (Form.tsx way recommended)
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    // post comment here...
+    console.log(data);
+
+    const notification = toast.loading("Posting your comment...");
+    await addComment({
+      variables: {
+        post_id: params!.postId,
+        username: session?.user?.name,
+        text: data.comment,
+      },
+    });
+
+    setValue("comment", "");
+
+    toast.success("Comment posted successfully!", {
+      id: notification,
+    });
+    console.log("Form data:", data);
+  };
+
+  return (
+    <div className="mx-auto my-7 max-w-5xl">
+      <Post post={post} />
+      {post && (
+        <>
+          <div className="-mt-1 rounded-b-md border-t-0 border-gray-300 bg-white dark:bg-gray-700 p-5 pl-16">
+            <p className="text-sm">
+              {" "}
+              Comment as{" "}
+              <span className="text-red-500">{session?.user?.name}</span>
+            </p>
+
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col space-y-2"
+            >
+              <textarea
+                {...register("comment")}
+                disabled={!session}
+                className="h-24 rounded-md border border-gray-200 p-2 pl-4 outline-none disabled:bg-gray-50 dark:bg-blue-50"
+                placeholder={
+                  session
+                    ? "What are your thoughts?"
+                    : "Pleasesign in to comment"
+                }
+              />
+              <button
+                disabled={!session}
+                type="submit"
+                className="rounded-full bg-red-500 p-3 font-semibold text-white disabled:bg-gray-200"
+              >
+                Comment
+              </button>
+            </form>
+          </div>
+
+          <div className="-my-5 rounded-b-md border-t-0 border-gray-300 bg-white dark:bg-gray-700 py-5 px-10">
+            <hr className="py-2" />
+            {post?.comment.map((comment) => (
+              <div
+                key={comment.id}
+                className="relative flex items-center space-x-2 space-y-5"
+              >
+                <hr className="absolute top-10 h-16 border left-7 z-0 " />
+                <div className="z-50">
+                  {/* @ts-expect-error Server Component
+              <Avatar seed={comment.username} /> */}
+                  <Image
+                    src={`https://avatars.dicebear.com/api/open-peeps/${
+                      comment.username || "placeholder"
+                    }.svg`}
+                    alt="Avatar Image"
+                    width={50}
+                    height={50}
+                    className={`rounded-full border-gray-300 bg-white h-10 w-10`}
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <p className="py-2 text-xs text-gray-400">
+                    <span className="font-semibold text-gray-600">
+                      {comment.username}
+                    </span>{" "}
+                    · <Time date={comment.created_at} />
+                  </p>
+                  <p>{comment.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default page;
+
+```
+
+### In app/subreddit/[topic]/page.tsx:
+
+```
+
+```
+
+## Deploy to Vercel:
+
+### Update Redirect URI in reddit app preferences:
+
+Go to https://www.reddit.com/prefs/apps
+
+Scroll dow to "developed applications"
+Nextauth-access > Edit> Update redirect uri:
+Old redirect uri: http://localhost:3000/api/auth/callback/reddit
+Updated Redirect Uri: https://reddit-clone-valyndsilva.vercel.app/api/auth/callback/reddit

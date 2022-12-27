@@ -110,16 +110,18 @@ function Post({ post }: Props) {
     );
 
   return (
-    <div className="flex cursor-pointer rounded-md border border-gray-300 bg-white shadow-sm hover:border hover:border-gray-600">
+    <div className="flex cursor-pointer rounded-md border border-gray-300 bg-white dark:bg-gray-700 shadow-sm hover:border hover:border-gray-600">
       {/* Votes */}
-      <div className="flex flex-col items-center justify-start space-y-1 rounded-l-md bg-gray-50 p-4 text-gray-400">
+      <div className="flex flex-col items-center justify-start space-y-1 rounded-l-md bg-gray-50 dark:bg-gray-800 p-4 text-gray-400">
         <ArrowUpIcon
           onClick={() => upVote(true)}
           className={`voteButtons hover:text-blue-400 ${
             vote && "text-blue-400"
           }`}
         />
-        <p className="text-xs font-bold text-black">{displayVotes(data)}</p>
+        <p className="text-xs font-bold text-black dark:text-gray-50">
+          {displayVotes(data)}
+        </p>
         <ArrowDownIcon
           onClick={() => upVote(false)}
           className={`voteButtons hover:text-red-400  ${
@@ -144,7 +146,7 @@ function Post({ post }: Props) {
           />
           <p className="text-xs text-gray-400">
             <Link href={`/subreddit/${post.subreddit.topic}`}>
-              <span className="font-bold text-black hover:text-blue-400 hover:underline">
+              <span className="font-bold text-black dark:text-gray-300 hover:text-blue-400 hover:underline">
                 r/{post.subreddit.topic}
               </span>{" "}
             </Link>
@@ -156,9 +158,13 @@ function Post({ post }: Props) {
         <div className="py-4">
           <Link href={`/post/${post.id}`}>
             {" "}
-            <h2 className="text-xl font-semibold">{post.title}</h2>
+            <h2 className="text-xl font-semibold dark:text-gray-300">
+              {post.title}
+            </h2>
           </Link>
-          <h2 className="mt-2 text-sm font-light">{post.body}</h2>
+          <h2 className="mt-2 text-sm font-light dark:text-gray-300">
+            {post.body}
+          </h2>
         </div>
 
         {/* Image */}

@@ -10,9 +10,9 @@ function Subreddit({ params }: Props) {
   console.log("URL Params:", params);
   const topic = params!.topic;
   return (
-    <div className="h-24 bg-red-400 p-8">
+    <div className="h-24 bg-orange-600 p-8">
       {/* <p>{params!.topic}</p> */}
-      <div className="-mx-8 mt-10 bg-white">
+      <div className="-mx-8 mt-10 bg-white dark:bg-gray-700">
         <div className="mx-auto flex max-w-5xl items-center space-x-4 pb-3">
           <div className="-mt-5">
             {/* @ts-expect-error Server Component */}

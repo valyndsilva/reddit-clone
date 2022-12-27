@@ -29,7 +29,7 @@ export default async function Header({}: Props) {
 
   return (
     <>
-      <div className="sticky top-0 z-50 flex bg-white px-4 py-2">
+      <div className="sticky top-0 z-50 flex bg-white dark:bg-slate-700 px-4 py-2 items-center">
         <div className="relative hidden lg:inline-flex flex-shrink-0 cursor-pointer">
           <Link href="/">
             <Image
@@ -78,9 +78,9 @@ export default async function Header({}: Props) {
                 <ChatBubbleOvalLeftEllipsisIcon className="icon" />
                 <BellIcon className="icon" />
                 <PlusIcon className="icon" />
-                <button className="bg-gray-100 rounded-full items-center py-1 px-2 hidden lg:inline-flex">
+                <button className="bg-gray-100 dark:bg-gray-600 rounded-full items-center py-1 px-2 hidden lg:inline-flex">
                   <MegaphoneIcon className="icon" />{" "}
-                  <span className="text-sm">Advertise</span>
+                  <span className="text-sm dark:text-white">Advertise</span>
                 </button>
               </div>
 

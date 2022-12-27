@@ -129,7 +129,7 @@ function Form({ subreddit }: Props) {
                 : "Create a post by entering a title"
               : "Sign in to post"
           }
-          className="flex-1 rounded-md bg-gray50 p-2 pl-5 outline-none"
+          className="flex-1 rounded-md bg-blue-50 dark:text-gray-800 p-2 pl-5 outline-none"
         />
         <PhotoIcon
           className={`h-6 w-6 text-gray-300 cursor-pointer ${
@@ -145,7 +145,7 @@ function Form({ subreddit }: Props) {
           <div className="flex items-center px-2">
             <p className="min-w-[90px]">Body:</p>
             <input
-              className="flex-1 m-2 bg-blue-50  p-2 outline-none"
+              className="flex-1 m-2 bg-blue-50 dark:text-gray-800 p-2 outline-none"
               {...register("postBody")}
               type="text"
               placeholder="Text (optional)"
@@ -156,7 +156,7 @@ function Form({ subreddit }: Props) {
             <div className="flex items-center px-2">
               <p className="min-w-[90px]">Subreddit:</p>
               <input
-                className=" m-2 flex-1 bg-blue-50  p-2 outline-none"
+                className=" m-2 flex-1 bg-blue-50 dark:text-gray-800 p-2 outline-none"
                 {...register("subreddit", { required: true })}
                 type="text"
                 placeholder="i.e nextjs"
@@ -168,7 +168,7 @@ function Form({ subreddit }: Props) {
             <div className="flex items-center px-2">
               <p className="min-w-[90px]">Image URL:</p>
               <input
-                className=" m-2 flex-1 bg-blue-50  p-2 outline-none"
+                className=" m-2 flex-1 bg-blue-50 dark:text-gray-800 p-2 outline-none"
                 {...register("postImage")}
                 type="text"
                 placeholder="Optional..."
