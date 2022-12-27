@@ -6678,7 +6678,7 @@ function page({ params }: Props) {
                 </div>
                 <div className="flex flex-col">
                   <p className="py-2 text-xs text-gray-400">
-                    <span className="font-semibold text-gray-600">
+                    <span className="font-semibold text-gray-400">
                       {comment.username}
                     </span>{" "}
                     · <Time date={comment.created_at} />
