@@ -41,8 +41,8 @@ export default async function Header({}: Props) {
             />
           </Link>
         </div>
-        <div className="relative flex lg:hidden items-center flex-shrink-0 cursor-pointer">
-          <Link href="/">
+        <Link href="/">
+          <div className="relative flex lg:hidden items-center flex-shrink-0 cursor-pointer">
             <Image
               src="/reddit-icon.png"
               alt="reddit logo"
@@ -50,13 +50,15 @@ export default async function Header({}: Props) {
               width={32}
               height={32}
             />
-          </Link>
-        </div>
-        <div className="mx-7 flex items-center xl:min-w-[300px]">
-          <HomeIcon className="h-5 w-5" />
-          <p className="flex-1 ml-2 hidden lg:inline-flex">Home</p>
-          <ChevronDownIcon className="h-5 w-4 ml-1 " />
-        </div>
+          </div>
+        </Link>
+        <Link href="/">
+          <div className="mx-7 flex items-center xl:min-w-[300px]">
+            <HomeIcon className="h-5 w-5" />
+            <p className="flex-1 ml-2 hidden lg:inline-flex">Home</p>
+            <ChevronDownIcon className="h-5 w-4 ml-1 " />
+          </div>
+        </Link>
         <form className="flex flex-1 items-center space-x-2 rounded-full border border-gray-200 bg-gray-100 focus:bg-white px-3 py-1 mr-2">
           <MagnifyingGlassIcon className="h-5 w-h-6 w-6 text-gray-400" />
           <input

@@ -10,12 +10,8 @@ async function Home({}: Props) {
       <PostBox />
       <div className="flex">
         <Feed />
-        <div className="flex-col sticky top-36 mx-5 mt-5 hidden h-fit min-w-[300px] rounded-md border border-gray-300 bg-white dark:bg-gray-700 lg:inline-flex">
-          <p className="text-md mb-1 p-4 pb-3 font-bold">Top Communities</p>
-
-          {/* List subreddits */}
-          <TopCommunities />
-        </div>
+        {/* List subreddits */}
+        <TopCommunities />
       </div>
     </div>
   );
