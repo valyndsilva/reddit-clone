@@ -5361,6 +5361,7 @@ export const GET_SUBREDDITS_WITH_LIMIT = gql`
 ### Update app/page.tsx:
 
 ```
+import { unstable_getServerSession } from "next-auth";
 import React from "react";
 import Feed from "./Feed";
 import PostBox from "./PostBox";
@@ -5368,17 +5369,14 @@ import TopCommunities from "./TopCommunities";
 type Props = {};
 
 async function Home({}: Props) {
+  const session = await unstable_getServerSession();
   return (
     <div className="my-7 mx-auto max-w-5xl">
       <PostBox />
       <div className="flex">
         <Feed />
-        <div className="flex-col sticky top-36 mx-5 mt-5 hidden h-fit min-w-[300px] rounded-md border border-gray-300 bg-white lg:inline-flex">
-          <p className="text-md mb-1 p-4 pb-3 font-bold">Top Communities</p>
-
-          {/* List subreddits */}
-          <TopCommunities />
-        </div>
+        {/* List subreddits */}
+        {session && <TopCommunities />}
       </div>
     </div>
   );
@@ -5409,10 +5407,17 @@ function TopCommunities({}: Props) {
   console.log(data);
   const subreddits: Subreddit[] = data?.getSubredditListLimit;
   return (
-    <div>
-      {subreddits?.map((subreddit, index) => (
-        <SubredditRow key={subreddit.id} topic={subreddit.topic} index={index}/>
-      ))}
+  <div className="flex-col sticky top-36 ml-5 mt-5 hidden h-fit min-w-[300px] rounded-md border border-gray-300 bg-white dark:bg-gray-700 lg:inline-flex">
+      <p className="text-md mb-1 p-4 pb-3 font-bold">Top Communities</p>
+      <div>
+        {subreddits?.map((subreddit, index) => (
+          <SubredditRow
+            key={subreddit.id}
+            topic={subreddit.topic}
+            index={index}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -5948,6 +5953,7 @@ export default DarkModeButton;
 ### In app/page.tsx:
 
 ```
+import { unstable_getServerSession } from "next-auth";
 import React from "react";
 import Feed from "./Feed";
 import PostBox from "./PostBox";
@@ -5955,13 +5961,14 @@ import TopCommunities from "./TopCommunities";
 type Props = {};
 
 async function Home({}: Props) {
+  const session = await unstable_getServerSession();
   return (
     <div className="my-7 mx-auto max-w-5xl">
       <PostBox />
       <div className="flex">
         <Feed />
         {/* List subreddits */}
-        <TopCommunities />
+        {session && <TopCommunities />}
       </div>
     </div>
   );
