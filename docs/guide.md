@@ -6616,7 +6616,7 @@ function page({ params }: Props) {
     toast.success("Comment posted successfully!", {
       id: notification,
     });
-    console.log("Form data:", data);
+    // console.log("Form data:", data);
   };
 
   return (
@@ -6638,17 +6638,17 @@ function page({ params }: Props) {
               <textarea
                 {...register("comment")}
                 disabled={!session}
-                className="h-24 rounded-md border border-gray-200 p-2 pl-4 outline-none disabled:bg-gray-50 dark:bg-blue-50"
+                className="h-24 rounded-md border border-gray-200 p-2 pl-4 outline-none disabled:bg-gray-50 dark:bg-blue-50 dark:text-gray-800"
                 placeholder={
                   session
                     ? "What are your thoughts?"
-                    : "Pleasesign in to comment"
+                    : "Please sign in to comment"
                 }
               />
               <button
                 disabled={!session}
                 type="submit"
-                className="rounded-full bg-red-500 p-3 font-semibold text-white disabled:bg-gray-200"
+                className="rounded-full bg-red-500 p-3 font-semibold text-white dark:text-gray-800 disabled:bg-gray-200"
               >
                 Comment
               </button>
@@ -6662,7 +6662,7 @@ function page({ params }: Props) {
                 key={comment.id}
                 className="relative flex items-center space-x-2 space-y-5"
               >
-                <hr className="absolute top-10 h-16 border left-7 z-0 " />
+                <hr className="absolute top-10 h-14 border left-7 z-0 " />
                 <div className="z-50">
                   {/* @ts-expect-error Server Component
               <Avatar seed={comment.username} /> */}
