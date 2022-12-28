@@ -60,7 +60,7 @@ function Post({ post }: Props) {
     // If you have not voted and you are trying to upvote or downvote multiple times return null
     if (vote === false && !isUpvote) return;
 
-    console.log("Voting...", isUpvote);
+    // console.log("Voting...", isUpvote);
 
     const {
       data: { insertVote: newVote },
@@ -72,7 +72,7 @@ function Post({ post }: Props) {
         upvote: isUpvote,
       },
     });
-    console.log("Voted successfully", data);
+    // console.log("Voted successfully", data);
   };
 
   const displayVotes = (data: any) => {

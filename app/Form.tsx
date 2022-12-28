@@ -21,7 +21,7 @@ type Props = {
 };
 
 function Form({ subreddit }: Props) {
-  console.log("Subreddit:", subreddit);
+  // console.log("Subreddit:", subreddit);
   const { data: session } = useSession();
   const [imageBoxOpen, setImageBoxOpen] = useState<boolean>(false);
 
@@ -40,10 +40,10 @@ function Form({ subreddit }: Props) {
     formState: { errors },
   } = useForm<FormData>();
 
-  console.log(watch("postTitle")); // watch input value by passing the name of it
+  // console.log(watch("postTitle")); // watch input value by passing the name of it
 
   const onSubmit = handleSubmit(async (formData) => {
-    console.log(formData);
+    // console.log(formData);
     const notification = toast.loading("Creating a new post...");
 
     try {
@@ -61,14 +61,14 @@ function Form({ subreddit }: Props) {
       const subredditExists = getSubredditListByTopic.length > 0;
       if (!subredditExists) {
         // Create a subreddit
-        console.log("Subreddit is new! -> Creating a new Subreddit!");
+        // console.log("Subreddit is new! -> Creating a new Subreddit!");
 
         const {
           data: { insertSubreddit: newSubreddit },
         } = await addSubreddit({
           variables: { topic: formData.subreddit },
         });
-        console.log("Creating a post...", formData);
+        // console.log("Creating a post...", formData);
         // To avoid a bug if postImage is undefined cast to empty string to fix bug
         const image = formData.postImage || "";
 
@@ -84,11 +84,11 @@ function Form({ subreddit }: Props) {
           },
         });
 
-        console.log("New post added:", newPost);
+        // console.log("New post added:", newPost);
       } else {
         //use existing subreddit
-        console.log("Using existing subreddit!");
-        console.log(getSubredditListByTopic);
+        // console.log("Using existing subreddit!");
+        // console.log(getSubredditListByTopic);
         const image = formData.postImage || "";
 
         const {
@@ -102,7 +102,7 @@ function Form({ subreddit }: Props) {
             username: session?.user?.name,
           },
         });
-        console.log("New post added:", newPost);
+        // console.log("New post added:", newPost);
       }
       //After post had been added!
       setValue("postTitle", "");
@@ -112,7 +112,7 @@ function Form({ subreddit }: Props) {
       toast.success("New Post Created!", { id: notification });
     } catch (error) {
       toast.error("Whopps something went wrong!", { id: notification });
-      console.log(error);
+      // console.log(error);
     }
   });
   return (

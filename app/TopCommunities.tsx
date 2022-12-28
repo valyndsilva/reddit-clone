@@ -12,7 +12,7 @@ function TopCommunities({}: Props) {
       limit: 10,
     },
   });
-  console.log(data);
+  // console.log(data);
   const subreddits: Subreddit[] = data?.getSubredditListLimit;
 
   return (

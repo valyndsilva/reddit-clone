@@ -7,7 +7,7 @@ type Props = { params?: { [key: string]: string | string[] | undefined } };
 
 function Subreddit({ params }: Props) {
   // E.g. `/subreddit/nextjs`
-  console.log("URL Params:", params);
+  // console.log("URL Params:", params);
   const topic = params!.topic;
   return (
     <div className="h-24 bg-orange-600 p-8">
