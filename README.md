@@ -1,4 +1,4 @@
-# Latest News App ⚡
+# Reddit 2.0 Clone App ⚡
 
 ## Tech Stack Used:
 
