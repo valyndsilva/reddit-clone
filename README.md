@@ -18,7 +18,7 @@
 
 ## Demo
 
-Checkout the [demo here](https://latest-news-app.vercel.app/)
+Checkout the [demo here](https://reddit-clone-valyndsilva.vercel.app/)
 
 ### Dark Mode
 
